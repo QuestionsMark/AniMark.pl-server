@@ -45,23 +45,17 @@ const userSchema = new Schema({
         type: Array,
         default: [],
     },
-    likes: {
-        type: Array,
-        default: [],
-    },
-    profileLikes: {
-        type: Array,
-        default: [],
-    },
+    likes: [{
+        type: SchemaTypes.ObjectId,
+        ref: "User",
+    }],
     achievements: [{
         type: SchemaTypes.ObjectId,
         ref: 'Achievement',
     }],
     points: {
         type: Object,
-        default: {
-            //...
-        }
+        required: true,
     },
     userAnimeData: {
         planned: [{
@@ -89,21 +83,26 @@ const userSchema = new Schema({
     },
     introduction: {
         type: Object,
-        default: {
-            //...
+        required: true,
+    },
+    favoriteAnime: [{
+        anime: {
+            type: SchemaTypes.ObjectId,
+            ref: "Anime",
         },
-    },
-    favoriteAnime: {
-        type: Array,
-        default: [],
-    },
+        rate: {
+            type: Number,
+            required: true,
+        }
+    }],
     favoriteType: {
-        type: String,
-        default: "",
+        type: SchemaTypes.ObjectId,
+        ref: "Type",
     },
     createdAt: {
         type: Date,
         default: Date.now(),
+        immutable: true,
     },
 }, {
     timestamps: true,

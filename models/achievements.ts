@@ -28,7 +28,10 @@ const achievementSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now(),
+        immutable: true,
     },
+}, {
+    timestamps: true,
 });
 
 export const Achievement = model('Achievement', achievementSchema);

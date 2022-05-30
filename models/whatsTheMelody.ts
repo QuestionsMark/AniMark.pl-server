@@ -1,11 +1,6 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
 
 const whatsTheMelodySchema = new Schema({
-    createdAt: {
-        type: Date,
-        immutable: true,
-        default: () => Date.now(),
-    },
     src: {
         type: String,
         required: true,
@@ -27,10 +22,10 @@ const whatsTheMelodySchema = new Schema({
             type: SchemaTypes.ObjectId,
             ref: "User",
         },
-        date: {
+        createdAt: {
             type: Date,
-            immutable: true,
             default: () => Date.now(),
+            immutable: true,
         },
         text: {
             type: String,
@@ -41,7 +36,14 @@ const whatsTheMelodySchema = new Schema({
             type: SchemaTypes.ObjectId,
             ref: "User",
         }],
-    }]
+    }],
+    createdAt: {
+        type: Date,
+        default: Date.now(),
+        immutable: true,
+    },
+}, {
+    timestamps: true,
 });
 
 export const WhatsTheMelody = model('WhatsTheMelody', whatsTheMelodySchema);

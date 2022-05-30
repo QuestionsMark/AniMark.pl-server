@@ -1,11 +1,6 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
 
 const newsSchema = new Schema({
-    createdAt: {
-        type: Date,
-        immutable: true,
-        default: () => Date.now(),
-    },
     title: {
         type: String,
         required: true,
@@ -37,32 +32,37 @@ const newsSchema = new Schema({
         type: Number,
         default: 0,
     },
-    viewers: {
-        type: [{
-            type: SchemaTypes.ObjectId,
-            ref: 'User',
-        }],
-        default: [],
-    },
+    viewers: [{
+        type: SchemaTypes.ObjectId,
+        ref: 'User',
+    }],
     comments: [{
         user: {
             type: SchemaTypes.ObjectId,
             ref: "User",
         },
-        date: {
+        createdAt: {
             type: Date,
-            immutable: true,
             default: () => Date.now(),
+            immutable: true,
         },
         text: {
             type: String,
             required: true,
+            trim: true,
         },
         likes: [{
             type: SchemaTypes.ObjectId,
             ref: "User",
         }],
     }],
+    createdAt: {
+        type: Date,
+        default: Date.now(),
+        immutable: true,
+    },
+}, {
+    timestamps: true,
 });
 
 export const News = model('News', newsSchema);

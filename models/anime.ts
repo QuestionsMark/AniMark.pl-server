@@ -8,14 +8,21 @@ const animeSchema = new Schema({
     title: {
         type: String,
         required: true,
+        index: { unique: true },
     },
     watchLink: {
         type: String,
         required: true,
     },
     info: {
-        scenario: String,
-        productionDate: Number,
+        scenario: {
+            type: String,
+            required: true,
+        },
+        productionDate: {
+            type: Number,
+            required: true,
+        },
         duration: {
             type: String,
             required: true,
@@ -26,7 +33,7 @@ const animeSchema = new Schema({
         ref: "Type",
     }],
     rate: [{
-        userId: {
+        user: {
             type: SchemaTypes.ObjectId,
             ref: "User",
             required: true,
@@ -105,20 +112,18 @@ const animeSchema = new Schema({
         }],
     }],
     description: {
-        authorName: {
-            type: String,
-            default: "Brak Autora",
-            //...
-        },
-        authorId: {
-            type: String,
-            default: "Brak Autora",
-            //...
+        author: {
+            type: SchemaTypes.ObjectId,
+            ref: "User",
+            required: true,
         },
         description: {
             type: String,
-            default: "Brak Autora",
-            //...
+            required: true,
+        },
+        createdAt: {
+            type: Date,
+            required: true,
         },
     },
     seasons: [{
@@ -130,9 +135,10 @@ const animeSchema = new Schema({
             type: SchemaTypes.ObjectId,
             ref: "User",
         },
-        date: {
+        createdAt: {
             type: Date,
             default: Date.now(),
+            immutable: true,
         },
         text: {
             type: String,
@@ -144,6 +150,11 @@ const animeSchema = new Schema({
             ref: "User",
         }],
     }],
+    createdAt: {
+        type: Date,
+        default: Date.now(),
+        immutable: true,
+    },
 }, {
     timestamps: true,
 });

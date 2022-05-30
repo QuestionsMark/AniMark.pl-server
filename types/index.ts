@@ -6,3 +6,4 @@ export * from "./swordArtOnlineResults";
 export * from "./types";
 export * from "./users";
 export * from "./whatsTheMelody";
+export * from "./common";

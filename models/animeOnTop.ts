@@ -1,18 +1,28 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
 
 const animeOnTopSchema = new Schema({
-    votes: {
-        type: Array,
-        default: [],
-    },
-    date: {
-        type: Date,
-        default: Date.now(),
-    },
+    votes: [{
+        title: {
+            type: String,
+            required: true,
+        },
+        votes: [{
+            type: SchemaTypes.ObjectId,
+            ref: "User",
+            required: true,
+        }],
+    }],
     winner: {
         type: SchemaTypes.ObjectId,
         ref: "Anime",
     },
+    createdAt: {
+        type: Date,
+        default: Date.now(),
+        immutable: true,
+    },
+}, {
+    timestamps: true,
 });
 
 export const AnimeOnTop = model('AnimeOnTop', animeOnTopSchema);
