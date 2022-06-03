@@ -1,7 +1,7 @@
 import { Comment } from "../common";
 import { UserAPI } from "../users";
 
-interface WTMVotes {
+export interface WTMVotes {
     title: string;
     votes: UserAPI[];
 }

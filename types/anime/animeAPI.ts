@@ -4,25 +4,25 @@ import { UserAPI } from "../users";
 
 type Kind = "movie" | "series";
 
-interface AnimeInfo {
+export interface AnimeInfo {
     scenario: string;
     productionYear: number;
     duration: string;
 }
 
-interface AnimeImage {
+export interface AnimeImage {
     src: string;
     fromAnime: string;
 }
 
-interface ImagesObject {
+export interface ImagesObject {
     background: AnimeImage;
     baner: AnimeImage;
     mini: AnimeImage;
     galeryImages: AnimeImage[];
 }
 
-interface AnimeDescription {
+export interface AnimeDescription {
     author: UserAPI;
     description: string;
     createdAt: Date;
