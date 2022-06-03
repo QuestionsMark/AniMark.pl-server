@@ -1,7 +1,7 @@
 import { AnimeAPI } from "../anime/animeAPI";
 import { UserAPI } from "../users";
 
-interface AOTVote {
+export interface AOTVote {
     title: string;
     votes: UserAPI[];
 }

@@ -2,7 +2,7 @@ import { AchievementAPI } from "../achievements";
 import { AnimeAPI } from "../anime";
 import { TypeAPI } from "../types";
 
-interface Points {
+export interface Points {
     watchedAnime: number;
     comments: number;
     descriptions: number;
@@ -13,24 +13,24 @@ interface Points {
     whatsTheMelody: number;
 }
 
-interface WatchedAnime {
+export interface WatchedAnime {
     anime: AnimeAPI;
     rate: number;
 }
 
-interface UserAnimeData {
+export interface UserAnimeData {
     planned: AnimeAPI[];
     processOfWatching: AnimeAPI[];
     stopped: AnimeAPI[];
     watched: WatchedAnime[];
 }
 
-interface Introduction {
+export interface Introduction {
     title: string;
     description: string;
 }
 
-interface FavoriteAnime {
+export interface FavoriteAnime {
     anime: AnimeAPI;
     rate: number;
 }
