@@ -1,5 +1,28 @@
-import { model, Schema, SchemaTypes } from 'mongoose';
+import { Document, Model, model, Schema, SchemaTypes } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { AchievementAPI, FavoriteAnime, Introduction, Points, TypeAPI, UserAnimeData, UserAPI } from '../types';
+
+export interface UserModel extends Document {
+    email: string;
+    login: string;
+    password: string;
+    rank: number;
+    username: string;
+    avatar: string;
+    background: string;
+    customBackgrounds: {
+        src: string;
+    }[];
+    likes: UserAPI[];
+    achievements: AchievementAPI[];
+    points: Points;
+    userAnimeData: UserAnimeData;
+    introduction: Introduction;
+    favoriteAnime: FavoriteAnime[];
+    favoriteType: TypeAPI;
+    createdAt: Date;
+    passwordMatches: (password: string) => Promise<boolean>;
+}
 
 enum RoleEnum {
     User,
@@ -98,6 +121,7 @@ const userSchema = new Schema({
     favoriteType: {
         type: SchemaTypes.ObjectId,
         ref: "Type",
+        default: null,
     },
     createdAt: {
         type: Date,
@@ -112,4 +136,4 @@ userSchema.methods.passwordMatches = async function (password: string) {
     return await bcrypt.compare(password, this.password);
 }
 
-export const User = model('User', userSchema);
+export const User: Model<UserModel> = model('User', userSchema);
