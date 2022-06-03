@@ -10,8 +10,29 @@ export class ValidationError extends Error {
     }
 };
 
-export const errorRouter = (err: Error, req: Request, res: Response, next: NextFunction) => {
+export interface MongooseError {
+    message: string;
+    code: number;
+    keyValue: {
+        username?: string;
+        email?: string;
+    };
+}
+
+export const errorRouter = (err: Error | MongooseError, req: Request, res: Response, next: NextFunction) => {
     console.error('O nie! Błąd: ', err.message);
+
+    if ((err as MongooseError).code === 11000) {
+        if ((err as MongooseError).keyValue.username) {
+            return res.status(400).json({ message: 'Nazwa uzytkownika jest już zajęta.' });
+        }
+
+        if ((err as MongooseError).keyValue.email) {
+            return res.status(400).json({ message: 'Email został już wykorzystany.' });
+        }
+
+        return res.status(400).json({ message: 'Przepraszamy spróbuj ponownie później.' });
+    }
 
     if (err instanceof TokenExpiredError) {
         return res.status(403).json({ message: 'Twoja sesja wygasła.' });
