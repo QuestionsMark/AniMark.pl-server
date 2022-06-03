@@ -64,10 +64,7 @@ const userSchema = new Schema({
         type: String,
         default: "background.png",
     },
-    customBackgrounds: {
-        type: Array,
-        default: [],
-    },
+    customBackgrounds: [String],
     likes: [{
         type: SchemaTypes.ObjectId,
         ref: "User",
