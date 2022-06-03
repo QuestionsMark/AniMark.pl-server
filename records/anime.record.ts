@@ -1,3 +1,4 @@
+import { Anime } from "../models/anime";
 import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, ImagesObject, Rate, Soundtrack, TypeAPI, UserAPI } from "../types";
 
 export class AnimeRecord implements AnimeAPI {
@@ -21,4 +22,11 @@ export class AnimeRecord implements AnimeAPI {
     ) {
 
     }
+
+    static async getRecommended(): Promise<AnimeAPI | null> {
+        const animeLength = await Anime.countDocuments();
+        const index = Math.floor(Math.random() * animeLength);
+        const recommended = await Anime.find().skip(index).limit(1);
+        return recommended.length > 0 ? recommended[0] : null;
+    };
 }
