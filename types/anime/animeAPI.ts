@@ -2,7 +2,7 @@ import { Comment, Rate, Soundtrack } from "../common";
 import { TypeAPI } from "../types";
 import { UserAPI } from "../users";
 
-type Kind = "movie" | "series";
+export type Kind = "movie" | "series";
 
 export interface AnimeInfo {
     scenario: string;
