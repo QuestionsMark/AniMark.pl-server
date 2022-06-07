@@ -1,6 +1,6 @@
 import { Document, Model, model, Schema, SchemaTypes } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { AchievementAPI, FavoriteAnime, Introduction, Points, TypeAPI, UserAnimeData, UserAPI } from '../types';
+import { AchievementAPI, FavoriteAnime, Introduction, Points, RoleEnum, TypeAPI, UserAnimeData, UserAPI } from '../types';
 
 export interface UserModel extends Document {
     email: string;
@@ -22,12 +22,6 @@ export interface UserModel extends Document {
     favoriteType: TypeAPI;
     createdAt: Date;
     passwordMatches: (password: string) => Promise<boolean>;
-}
-
-enum RoleEnum {
-    User,
-    Moderator,
-    Admin,
 }
 
 const userSchema = new Schema({

@@ -28,6 +28,12 @@ export interface AnimeDescription {
     createdAt: Date;
 }
 
+export interface AnimeSeason {
+    _id: string;
+    title: string;
+    image: AnimeImage;
+}
+
 export interface AnimeAPI {
     _id: string;
     kind: Kind;

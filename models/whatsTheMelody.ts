@@ -1,4 +1,5 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
+import { v4 as uuid } from "uuid";
 
 const whatsTheMelodySchema = new Schema({
     src: {
@@ -18,9 +19,14 @@ const whatsTheMelodySchema = new Schema({
         default: [],
     },
     comments: [{
+        id: {
+            type: String,
+            required: true,
+        },
         user: {
             type: SchemaTypes.ObjectId,
             ref: "User",
+            required: true,
         },
         createdAt: {
             type: Date,

@@ -23,7 +23,7 @@ export interface NewsAPI {
     createdAt: Date;
 }
 
-export interface NewsAPICondensed {
+export interface NewsCondensedAPI {
     _id: string;
     title: string;
     description: string;

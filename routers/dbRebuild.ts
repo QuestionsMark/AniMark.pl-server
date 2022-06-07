@@ -2,6 +2,7 @@ import { Router } from "express";
 import { readFile, writeFile } from "fs/promises";
 import fetch from "node-fetch";
 import { AchievementAPI, UserAPI } from "../types";
+import { v4 as uuid } from "uuid";
 
 export const dbRebuildRouter = Router();
 
@@ -200,12 +201,103 @@ dbRebuildRouter
         res.end();
     })
 
+    .get('/anime', async (req, res) => {
+        const json = await readFile('./public/copy/animes.json', 'utf-8');
+        const anime: any[] = JSON.parse(json);
+
+        const newDescription = `Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum tenetur deserunt illum temporibus accusantium debitis perspiciatis suscipit ab nisi cupiditate nihil quibusdam non neque veniam, minus at ratione itaque maiores? Neque molestiae, laudantium cupiditate assumenda repellendus exercitationem odio, officia similique dolorem tenetur voluptas, omnis non. Aperiam, consequuntur. Dicta magni voluptate deleniti commodi corrupti modi exercitationem repellendus dolorum repellat est ducimus aspernatur ipsum sint quis praesentium obcaecati accusamus quisquam similique odit quam dolore corporis, sit sed provident.
+        Id nostrum inventore mollitia quam quas qui at, aliquid quo esse labore ipsa maxime doloribus tempora aspernatur culpa officia ducimus ex facere, eveniet soluta. Officiis consequuntur tenetur ut dicta officia quas, necessitatibus, odio quis deleniti nemo. Eum, quia quaerat ducimus corrupti possimus deserunt exercitationem natus error, neque quibusdam dolor sit cum ipsa enim sapiente mollitia illo! Corrupti sunt facere facilis expedita voluptatibus obcaecati rem sit beatae maxime consequuntur nam deleniti perferendis sequi magni asperiores ipsam, dolorem delectus quam recusandae suscipit aliquam error? Consectetur est ullam tempore fugiat facilis rerum quia aliquam deserunt pariatur id harum inventore cupiditate ut delectus ipsa veniam reprehenderit sapiente, perferendis officia ducimus eos laboriosam voluptatem asperiores deleniti. Eveniet, quos consequatur. Id nostrum inventore mollitia quam quas qui at, aliquid quo esse labore ipsa maxime doloribus tempora aspernatur culpa officia ducimus ex facere, eveniet soluta. Officiis consequuntur tenetur ut dicta officia quas, necessitatibus, odio maxime aut hic ad adipisci architecto, quos possimus similique quis deleniti nemo. Maxime consequuntur nam deleniti perferendis sequi magni asperiores ipsam, dolorem delectus quam recusandae suscipit aliquam error? Consectetur est ullam tempore fugiat facilis rerum quia aliquam deserunt pariatur id harum inventore cupiditate ut delectus ipsa veniam reprehenderit sapiente, perferendis officia ducimus eos laboriosam voluptatem asperiores deleniti.
+        Eveniet, quos consequatur. Id nostrum inventore mollitia quam quas qui at, aliquid quo esse labore ipsa maxime doloribus tempora aspernatur culpa officia ducimus ex facere, eveniet soluta. Officiis consequuntur tenetur ut dicta officia quas, necessitatibus, odio maxime aut hic ad adipisci architecto, quos possimus similique quis deleniti nemo.`;
+
+        const newAnime: any[] = [];
+
+        for (const { _id, types, rate, likes, soundtracks, seasons, comments, kind, title, watchLink, info, images, description, averageRate } of anime) {
+
+            const newAverageRate = rate.reduce((p: number, a: any) => p + a.rate, 0) / rate.length;
+
+            const newGaleryImages: any[] = [];
+
+            newGaleryImages.push({ src: `${images.background.img}.png`, fromAnime: title });
+            newGaleryImages.push({ src: `${images.baner.img}.png`, fromAnime: title });
+            newGaleryImages.push({ src: `${images.mini.img}.png`, fromAnime: title });
+
+            for (const { img } of images.galeryImages) {
+                if (newGaleryImages.findIndex(i => i.src === `${img}.png`) === -1) {
+                    newGaleryImages.push({ src: `${img}.png`, fromAnime: title });
+                }
+            }
+
+            newAnime.push({
+                _id,
+                types: types.map((t: any) => ({ '$oid': t.id })),
+                rate: rate.map((r: any) => ({
+                    user: { '$oid': r.user },
+                    rate: r.rate,
+                })),
+                likes: likes.map((l: any) => ({ '$oid': l })),
+                soundtracks: soundtracks.map((s: any) => ({
+                    src: `${s.mp3}.mp3`,
+                    title: s.title,
+                    composer: s.composer,
+                    likes: s.likes.map((l: any) => ({ '$oid': l })),
+                })),
+                seasons: seasons.map((s: any) => ({ '$oid': s.id })),
+                comments: comments.map((c: any) => ({
+                    user: { '$oid': c.userID },
+                    createdAt: c.date,
+                    text: c.text,
+                    likes: c.likes.map((l: any) => ({ '$oid': l })),
+                })),
+                kind,
+                title,
+                watchLink,
+                info: {
+                    scenario: info.scenario,
+                    productionYear: Number(info.productionDate),
+                    duration: info.duration,
+                },
+                images: {
+                    background: {
+                        src: `${images.background.img}.png`,
+                        fromAnime: title,
+                    },
+                    baner: {
+                        src: `${images.baner.img}.png`,
+                        fromAnime: title,
+                    },
+                    mini: {
+                        src: `${images.mini.img}.png`,
+                        fromAnime: title,
+                    },
+                    galeryImages: newGaleryImages,
+                },
+                description: {
+                    author: { '$oid': description.authorID ? description.authorID : '6298eecbae88ec661828e0f6' },
+                    description: description.description.slice(0, 11) === "Lorem ipsum" ? newDescription : description.description,
+                    createdAt: { "$date": { "$numberLong": String(new Date(description.addedDate).getTime()) } },
+                },
+                averageRate: newAverageRate,
+                createdAt: { "$date": { "$numberLong": String(new Date(description.addedDate).getTime()) } },
+            });
+        }
+
+        await writeFile('./public/copy/new-animes.json', JSON.stringify(newAnime));
+
+        res.end();
+    })
+
     .get('/test', async (req, res) => {
-        const json = await readFile('./public/copy/new-news.json', 'utf-8');
+        const json = await readFile('./public/copy/wtms.json', 'utf-8');
         const data = JSON.parse(json);
 
-        console.log(data.length);
+        const newData = data.map((a: any) => ({
+            ...a,
+            comments: a.comments.map((c: any) => ({
+                ...c,
+                id: uuid(),
+            }))
+        }))
 
-
+        await writeFile('./public/copy/new-wtms.json', JSON.stringify(newData));
         res.end();
     })

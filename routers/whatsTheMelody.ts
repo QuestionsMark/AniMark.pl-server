@@ -18,6 +18,12 @@ whatsTheMelodyRouter
     })
 
 
+    // Pobieranie wyników aktualnego WTM
+    .get('/actual/results', async (req, res) => {
+        res.status(200).json(responseApiHelper(await WhatsTheMelodyRecord.getActualResults()));
+    })
+
+
     // Pobieranie komentarzy aktualnego WTM
     .get('/actual/comments', async (req, res) => {
         res.status(200).json(responseApiHelper(await WhatsTheMelodyRecord.getActualComments()));

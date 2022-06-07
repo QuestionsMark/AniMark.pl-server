@@ -1,5 +1,5 @@
 import { Anime } from "../models/anime";
-import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, ImagesObject, Rate, Soundtrack, TypeAPI, UserAPI } from "../types";
+import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, ImagesObject, Rate, RecommendedAnime, Soundtrack, TypeAPI, UserAPI } from "../types";
 
 export class AnimeRecord implements AnimeAPI {
     _id: string;
@@ -23,10 +23,12 @@ export class AnimeRecord implements AnimeAPI {
 
     }
 
-    static async getRecommended(): Promise<AnimeAPI | null> {
+    static async getRecommended(): Promise<RecommendedAnime | null> {
         const animeLength = await Anime.countDocuments();
         const index = Math.floor(Math.random() * animeLength);
-        const recommended = await Anime.find().skip(index).limit(1);
-        return recommended.length > 0 ? recommended[0] : null;
+        const recommendedArr: AnimeAPI[] = await Anime.find().skip(index).limit(1).populate('types', ['_id', 'name']);
+        if (!(recommendedArr.length > 0)) return null;
+        const { _id, averageRate, description, images, kind, likes, soundtracks, title, types } = recommendedArr[0];
+        return { _id, averageRate, description: description.description, image: images.mini, kind, likes: likes as any, soundtrackSrc: soundtracks[0].src ? soundtracks[0].src : '', title, types };
     };
 }

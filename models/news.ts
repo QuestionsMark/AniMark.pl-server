@@ -1,4 +1,5 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
+import { v4 as uuid } from "uuid";
 
 const newsSchema = new Schema({
     title: {
@@ -37,9 +38,14 @@ const newsSchema = new Schema({
         ref: 'User',
     }],
     comments: [{
+        id: {
+            type: String,
+            required: true,
+        },
         user: {
             type: SchemaTypes.ObjectId,
             ref: "User",
+            required: true,
         },
         createdAt: {
             type: Date,

@@ -13,7 +13,6 @@ import { dailyUpdate } from "./utils/dailyUpdate";
 import { errorRouter } from "./middlewares/error";
 
 import { achievementsRouter, animeOnTopRouter, animeRouter, homeRouter, newsRouter, swordArtOnlineResultsRouter, typesRouter, usersRouter, whatsTheMelodyRouter } from "./routers";
-import { readFile } from "fs/promises";
 import { dbRebuildRouter } from "./routers/dbRebuild";
 
 
@@ -48,8 +47,8 @@ app.use('/sword-art-online-results', swordArtOnlineResultsRouter);
 app.use('/types', typesRouter);
 app.use('/users', usersRouter);
 app.use('/whats-the-melody', whatsTheMelodyRouter);
-//
-app.use('/db-rebuild', dbRebuildRouter);
+// Router do naprawiania bazy danych
+// app.use('/db-rebuild', dbRebuildRouter);
 //
 
 app.use(errorRouter);

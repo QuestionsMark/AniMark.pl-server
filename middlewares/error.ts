@@ -10,6 +10,15 @@ export class ValidationError extends Error {
     }
 };
 
+export class SocketError extends Error {
+    errors?: string[];
+
+    constructor(message: string, errors?: string[]) {
+        super(message);
+        this.errors = errors;
+    }
+}
+
 export interface MongooseError {
     message: string;
     code: number;

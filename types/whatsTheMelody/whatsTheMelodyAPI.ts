@@ -3,6 +3,10 @@ import { UserAPI } from "../users";
 
 export interface WTMVotes {
     title: string;
+    votes: string[];
+}
+export interface WTMVotesPopulate {
+    title: string;
     votes: UserAPI[];
 }
 

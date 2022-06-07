@@ -6,3 +6,10 @@ export interface WhatsTheMelodyResults {
     correctAnswear: string;
     votes: WTMVotes[];
 }
+
+export interface VoteResultsAPI {
+    isFail: boolean;
+    percent: string;
+    title: string;
+    votesAmount: number;
+}

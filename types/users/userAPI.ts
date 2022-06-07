@@ -1,6 +1,12 @@
 import { AchievementAPI } from "../achievements";
-import { AnimeAPI } from "../anime";
+import { AnimeAPI, AnimeImage } from "../anime";
 import { TypeAPI } from "../types";
+
+export enum RoleEnum {
+    User,
+    Moderator,
+    Admin,
+}
 
 export interface Points {
     watchedAnime: number;
@@ -55,4 +61,13 @@ export interface UserAPI {
     favoriteAnime: FavoriteAnime[];
     favoriteType: TypeAPI;
     createdAt: Date;
+}
+
+export interface RecommendedProfileAPI {
+    _id: string;
+    username: string;
+    points: Points;
+    likes: string[];
+    avatar: string;
+    background: string;
 }

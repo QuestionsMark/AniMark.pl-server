@@ -1,4 +1,5 @@
 import { model, Schema, SchemaTypes } from 'mongoose';
+import { v4 as uuid } from "uuid";
 
 const animeSchema = new Schema({
     kind: {
@@ -131,9 +132,14 @@ const animeSchema = new Schema({
         ref: "Anime",
     }],
     comments: [{
+        id: {
+            type: String,
+            required: true,
+        },
         user: {
             type: SchemaTypes.ObjectId,
             ref: "User",
+            required: true,
         },
         createdAt: {
             type: Date,

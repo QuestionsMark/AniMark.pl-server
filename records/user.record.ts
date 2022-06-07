@@ -1,5 +1,4 @@
 import { genSalt, hash as genHash } from "bcrypt";
-import { Model } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { User, UserModel } from "../models/users";
 import { AchievementAPI, FavoriteAnime, Introduction, Points, TypeAPI, UserAnimeData, UserAPI } from "../types";

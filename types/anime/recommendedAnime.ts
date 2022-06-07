@@ -1,5 +1,5 @@
 import { TypeAPI } from "../types";
-import { Kind } from "./animeAPI";
+import { AnimeImage, Kind } from "./animeAPI";
 
 export interface RecommendedAnime {
     _id: string;
@@ -8,7 +8,7 @@ export interface RecommendedAnime {
     types: TypeAPI[];
     averageRate: number;
     likes: string[];
-    imageSrc: string;
+    image: AnimeImage;
     soundtrackSrc: string;
     description: string;
 }

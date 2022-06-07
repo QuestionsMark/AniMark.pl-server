@@ -2,14 +2,16 @@ import { AchievementAPI } from "./achievements";
 import { AnimeAPI, RecommendedAnime } from "./anime";
 import { AnimeOnTopAPI } from "./animeOnTop";
 import { AuthorizationAPI, Token } from "./authorizationAPI";
-import { Comment, OnlineUser } from "./common";
+import { Comment, CommentPopulate, OnlineUser } from "./common";
 import { NewsAPI } from "./news";
 import { SwordArtOnlineResultAPI } from "./swordArtOnlineResults";
 import { TypeAPI } from "./types";
 import { UserAPI } from "./users";
-import { WhatsTheMelodyAPI } from "./whatsTheMelody";
+import { WhatsTheMelodyAPI, WhatsTheMelodyQuestion, WhatsTheMelodyResults } from "./whatsTheMelody";
 
-export type AnyData = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[] | OnlineUser[] | RecommendedAnime | AchievementAPI | AnimeAPI | AnimeOnTopAPI | NewsAPI | NewsAPI | SwordArtOnlineResultAPI | TypeAPI | UserAPI | WhatsTheMelodyAPI | OnlineUser | AuthorizationAPI | Token | Comment | Comment[];
+export type AnyData = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[] | OnlineUser[] | RecommendedAnime | AchievementAPI | AnimeAPI | AnimeOnTopAPI | NewsAPI | NewsAPI | SwordArtOnlineResultAPI | TypeAPI | UserAPI | WhatsTheMelodyAPI | OnlineUser | AuthorizationAPI | Token | Comment | Comment[] | WhatsTheMelodyQuestion | WhatsTheMelodyResults | CommentPopulate | CommentPopulate[];
+
+export type AnyArrayData = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[] | OnlineUser[] | Comment[] | CommentPopulate[];
 
 export type Data = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[];
 
@@ -22,6 +24,12 @@ export interface ServerApiResponse {
     amount?: number;
 }
 export interface ServerErrorResponse {
+    message: string;
+    validation?: string[];
+}
+
+export interface SocketErrorResponse {
+    status: false;
     message: string;
     validation?: string[];
 }
