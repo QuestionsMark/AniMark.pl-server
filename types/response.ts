@@ -1,15 +1,15 @@
 import { AchievementAPI } from "./achievements";
-import { AnimeAPI, RecommendedAnime } from "./anime";
-import { AnimeOnTopAPI } from "./animeOnTop";
+import { AnimeAPI, AnimeForm, RecommendedAnimeAPI } from "./anime";
+import { AnimeOnTopAPI, AnimeOnTopPopulateAPI, AnimeOnTopWinnerAPI } from "./animeOnTop";
 import { AuthorizationAPI, Token } from "./authorizationAPI";
 import { Comment, CommentPopulate, OnlineUser } from "./common";
-import { NewsAPI } from "./news";
+import { NewsAPI, NewsCondensedAPI } from "./news";
 import { SwordArtOnlineResultAPI } from "./swordArtOnlineResults";
 import { TypeAPI } from "./types";
 import { UserAPI } from "./users";
 import { WhatsTheMelodyAPI, WhatsTheMelodyQuestion, WhatsTheMelodyResults } from "./whatsTheMelody";
 
-export type AnyData = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[] | OnlineUser[] | RecommendedAnime | AchievementAPI | AnimeAPI | AnimeOnTopAPI | NewsAPI | NewsAPI | SwordArtOnlineResultAPI | TypeAPI | UserAPI | WhatsTheMelodyAPI | OnlineUser | AuthorizationAPI | Token | Comment | Comment[] | WhatsTheMelodyQuestion | WhatsTheMelodyResults | CommentPopulate | CommentPopulate[];
+export type AnyData = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[] | OnlineUser[] | RecommendedAnimeAPI | AchievementAPI | AnimeAPI | AnimeOnTopAPI | NewsAPI | NewsAPI | SwordArtOnlineResultAPI | TypeAPI | UserAPI | WhatsTheMelodyAPI | OnlineUser | AuthorizationAPI | Token | Comment | Comment[] | WhatsTheMelodyQuestion | WhatsTheMelodyResults | CommentPopulate | CommentPopulate[] | AnimeOnTopWinnerAPI | AnimeOnTopPopulateAPI | NewsCondensedAPI | NewsCondensedAPI[] | AnimeForm | AnimeForm[] | any;
 
 export type AnyArrayData = AchievementAPI[] | AnimeAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[] | OnlineUser[] | Comment[] | CommentPopulate[];
 

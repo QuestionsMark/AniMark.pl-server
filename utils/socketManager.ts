@@ -1,12 +1,8 @@
-import { ServerResponse } from "http";
-import fetch from "node-fetch";
-import { HOST_ADDRESS } from "../config/config";
 import { io } from "../index";
-import { SocketError } from "../middlewares/error";
 import { WhatsTheMelodyRecord } from "../records";
 import { NewComment, NewVote, UpdateComment } from "../types";
 import { checkSocketAuthorization } from "./checkSocketAuthorization";
-import { responseHelper, socketResponseErrorHelper } from "./responseHelper";
+import { socketResponseErrorHelper } from "./responseHelper";
 import { socketErrorHandler } from "./socketError";
 
 export const socketManager = async () => {
@@ -109,10 +105,15 @@ export const socketManager = async () => {
             }
         });
 
-
-
-        socket.on('whats-the-melody-roll', () => {
-            io.emit('whats-the-melody-roll');
+        socket.on('whats-the-melody__set-new', async ({ token }) => {
+            const userId = checkSocketAuthorization(token, { io, socket }, [2]);
+            if (!userId) return;
+            try {
+                await WhatsTheMelodyRecord.setNew();
+                io.emit('whats-the-melody__new');
+            } catch (err) {
+                socketErrorHandler(err, { io, socket });
+            }
         });
     });
 }

@@ -13,13 +13,13 @@ export interface UserModel extends Document {
     customBackgrounds: {
         src: string;
     }[];
-    likes: UserAPI[];
-    achievements: AchievementAPI[];
+    likes: string[];
+    achievements: string[];
     points: Points;
     userAnimeData: UserAnimeData;
     introduction: Introduction;
     favoriteAnime: FavoriteAnime[];
-    favoriteType: TypeAPI;
+    favoriteType: string;
     createdAt: Date;
     passwordMatches: (password: string) => Promise<boolean>;
 }

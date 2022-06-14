@@ -1,3 +1,4 @@
+import { Type } from "../models/types";
 import { TypeAPI } from "../types";
 
 export class TypeRecord implements TypeAPI {
@@ -9,4 +10,8 @@ export class TypeRecord implements TypeAPI {
     ) {
 
     }
+
+    static async getAll(): Promise<TypeAPI[]> {
+        return Type.find();
+    };
 }

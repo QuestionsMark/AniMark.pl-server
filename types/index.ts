@@ -11,4 +11,5 @@ export * from "./projects";
 
 export * from "./response";
 export * from "./authorizationAPI";
+export * from "./fetchAPI";
 export * from "./socket";

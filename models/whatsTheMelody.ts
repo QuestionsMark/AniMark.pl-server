@@ -15,8 +15,14 @@ const whatsTheMelodySchema = new Schema({
         required: true,
     },
     votes: {
-        type: Array,
-        default: [],
+        type: [{
+            title: {
+                type: String,
+                required: true,
+            },
+            votes: [String],
+        }],
+        required: true,
     },
     comments: [{
         id: {

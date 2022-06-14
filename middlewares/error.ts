@@ -29,7 +29,7 @@ export interface MongooseError {
 }
 
 export const errorRouter = (err: Error | MongooseError, req: Request, res: Response, next: NextFunction) => {
-    console.error('O nie! Błąd: ', err.message);
+    console.error('O nie! Błąd: ', err);
 
     if ((err as MongooseError).code === 11000) {
         if ((err as MongooseError).keyValue.username) {

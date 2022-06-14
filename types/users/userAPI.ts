@@ -1,7 +1,3 @@
-import { AchievementAPI } from "../achievements";
-import { AnimeAPI, AnimeImage } from "../anime";
-import { TypeAPI } from "../types";
-
 export enum RoleEnum {
     User,
     Moderator,
@@ -20,14 +16,14 @@ export interface Points {
 }
 
 export interface WatchedAnime {
-    anime: AnimeAPI;
+    anime: string;
     rate: number;
 }
 
 export interface UserAnimeData {
-    planned: AnimeAPI[];
-    processOfWatching: AnimeAPI[];
-    stopped: AnimeAPI[];
+    planned: string[];
+    processOfWatching: string[];
+    stopped: string[];
     watched: WatchedAnime[];
 }
 
@@ -37,7 +33,7 @@ export interface Introduction {
 }
 
 export interface FavoriteAnime {
-    anime: AnimeAPI;
+    anime: string;
     rate: number;
 }
 
@@ -53,13 +49,13 @@ export interface UserAPI {
     customBackgrounds: {
         src: string;
     }[];
-    likes: UserAPI[];
-    achievements: AchievementAPI[];
+    likes: string[];
+    achievements: string[];
     points: Points;
     userAnimeData: UserAnimeData;
     introduction: Introduction;
     favoriteAnime: FavoriteAnime[];
-    favoriteType: TypeAPI;
+    favoriteType: string;
     createdAt: Date;
 }
 
@@ -70,4 +66,10 @@ export interface RecommendedProfileAPI {
     likes: string[];
     avatar: string;
     background: string;
+}
+
+export interface UserDataAPI {
+    userAnimeData: UserAnimeData;
+    favoriteAnime: FavoriteAnime[];
+    favoriteType: string;
 }

@@ -1,24 +1,23 @@
-import { AnimeDescription, AnimeImage, AnimeSeason } from "../anime/animeAPI";
+import { AnimeDescriptionPopulate, AnimeImage, AnimeSeason } from "../anime/animeAPI";
 import { Soundtrack } from "../common";
 import { TypeAPI } from "../types";
-import { UserAPI } from "../users";
 
 export interface AOTVote {
     title: string;
-    votes: UserAPI[];
+    votes: string[];
 }
 
 export interface AnimeOnTopAPI {
     _id: string;
     votes: AOTVote[];
-    winner: string;
+    winner: string | null;
     createdAt: Date;
 }
 
 export interface AnimeOnTopPopulateAPI {
     _id: string;
     votes: AOTVote[];
-    winner: AnimeOnTopWinnerAPI;
+    winner: AnimeOnTopWinnerAPI | null;
     createdAt: Date;
 }
 
@@ -26,10 +25,10 @@ export interface AnimeOnTopWinnerAPI {
     _id: string;
     image: AnimeImage;
     averageRate: number;
-    likes: string[];
+    likes: number;
     title: string;
     types: TypeAPI[];
-    description: AnimeDescription;
+    description: AnimeDescriptionPopulate;
     soundtracks: Soundtrack[];
     watchLink: string;
     seasons: AnimeSeason[];

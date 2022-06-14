@@ -1,7 +1,10 @@
+import { UserDataAPI } from "./users";
+
 export interface AuthorizationAPI {
     token: string;
     rank: number;
     userId: string;
+    userData: UserDataAPI;
 }
 
 export interface Token {

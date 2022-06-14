@@ -287,17 +287,17 @@ dbRebuildRouter
     })
 
     .get('/test', async (req, res) => {
-        const json = await readFile('./public/copy/wtms.json', 'utf-8');
+        const json = await readFile('./public/copy/anime.json', 'utf-8');
         const data = JSON.parse(json);
 
         const newData = data.map((a: any) => ({
             ...a,
-            comments: a.comments.map((c: any) => ({
-                ...c,
+            soundtracks: a.soundtracks.map((s: any) => ({
+                ...s,
                 id: uuid(),
-            }))
-        }))
+            })),
+        }));
 
-        await writeFile('./public/copy/new-wtms.json', JSON.stringify(newData));
+        await writeFile('./public/copy/anime.json', JSON.stringify(newData));
         res.end();
     })

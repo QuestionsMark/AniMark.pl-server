@@ -1,5 +1,4 @@
-import { Comment } from "../common";
-import { UserAPI } from "../users";
+import { Comment, CommentPopulate } from "../common";
 
 export interface OtherLink {
     link: string;
@@ -18,8 +17,8 @@ export interface NewsAPI {
     }[];
     otherLinks: OtherLink[];
     views: number;
-    viewers: UserAPI[];
-    comments: Comment[];
+    viewers: string[];
+    comments: CommentPopulate[];
     createdAt: Date;
 }
 
@@ -30,6 +29,6 @@ export interface NewsCondensedAPI {
     imageSrc: string;
     views: number;
     viewers: string[];
-    comments: Number;
+    comments: number;
     createdAt: Date;
 }

@@ -15,6 +15,7 @@ const animeOnTopSchema = new Schema({
     winner: {
         type: SchemaTypes.ObjectId,
         ref: "Anime",
+        default: null,
     },
     createdAt: {
         type: Date,

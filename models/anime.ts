@@ -95,6 +95,10 @@ const animeSchema = new Schema({
         }],
     },
     soundtracks: [{
+        id: {
+            type: String,
+            required: true,
+        },
         src: {
             type: String,
             required: true,

@@ -6,8 +6,7 @@ export const responseHelper = (message: string, results: AnyData | null = null):
 };
 
 export const responseApiHelper = (results: AnyData | null, amount: number | null = null): ServerApiResponse => {
-    if (!amount) return { results };
-    return { results, amount };
+    return amount === null ? { results } : { results, amount };
 };
 
 export const socketResponseErrorHelper = (message: string, validation: string[] = null): SocketErrorResponse => {

@@ -8,7 +8,7 @@ export const whatsTheMelodyRouter = Router();
 whatsTheMelodyRouter
     // Pobieranie wszystkich WTM
     .get('/', pagination("WHATS_THE_MELODY"), (req, res) => {
-
+        res.end();
     })
 
 
@@ -33,23 +33,23 @@ whatsTheMelodyRouter
 
     // Pobieranie konkretnego WTM
     .get('/:id', (req, res) => {
-
+        res.end();
     })
 
 
     // Dodawanie WTM
     .post('/', (req, res) => {
-
+        res.end();
     })
 
 
     // Usuwanie WTM
     .delete('/:id', (req, res) => {
-
+        res.end();
     })
 
 
     // Edytowanie WTM
     .patch('/:id', (req, res) => {
-
+        res.end();
     })

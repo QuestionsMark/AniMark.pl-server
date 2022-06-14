@@ -2,8 +2,9 @@ import { Router } from "express";
 import { sign, verify } from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config/config";
 import { ValidationError } from "../middlewares/error";
+import { User } from "../models/users";
 import { UserRecord } from "../records";
-import { AuthorizationAPI, LoginAPI, Token } from "../types";
+import { AuthorizationAPI, LoginAPI, Token, UserAPI } from "../types";
 import { responseHelper } from "../utils/responseHelper";
 
 export const homeRouter = Router();
@@ -18,10 +19,13 @@ homeRouter
 
 
     // Autoryzacja
-    .get('/authorization/:token', (req, res) => {
+    .get('/authorization/:token', async (req, res) => {
         const verified = verify(req.params.token, TOKEN_SECRET);
         const { rank, userId } = verified as Token;
-        res.status(200).json(responseHelper('Autoryzacja.', { rank, userId } as AuthorizationAPI));
+        const user: UserAPI = await User.findById(userId).select('userAnimeData').select('favoriteAnime').select('favoriteType');
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        const { favoriteAnime, favoriteType, userAnimeData } = user;
+        res.status(200).json(responseHelper('Autoryzacja.', { rank, userId, userData: { userAnimeData, favoriteAnime, favoriteType } } as AuthorizationAPI));
     })
 
 

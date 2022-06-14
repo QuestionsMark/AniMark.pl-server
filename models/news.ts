@@ -22,6 +22,7 @@ const newsSchema = new Schema({
     otherLinks: [{
         link: {
             type: String,
+            required: true,
             trim: true,
         },
         note: {

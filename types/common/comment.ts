@@ -3,7 +3,7 @@ import { Collection } from "./collection";
 
 export interface Comment {
     id: string;
-    user: UserAPI;
+    user: string;
     createdAt: Date;
     text: string;
     likes: string[];
