@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { sign } from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config/config";
-import { pagination } from "../middlewares/pagination";
+import { ValidationError } from "../middlewares/error";
+import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { UserRecord } from "../records";
 import { AuthorizationAPI } from "../types";
 import { responseApiHelper, responseHelper } from "../utils/responseHelper";
@@ -11,8 +12,8 @@ export const usersRouter = Router();
 
 usersRouter
     // Pobieranie wszystkich użytkowników
-    .get('/', pagination("USERS"), (req, res) => {
-        res.end();
+    .get('/', pagination("USERS"), (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
     })
 
 
@@ -23,8 +24,8 @@ usersRouter
 
 
     // Pobieranie konkretnego użytkownika
-    .get('/:id', (req, res) => {
-        res.end();
+    .get('/:id', async (req, res) => {
+        res.status(200).json(responseApiHelper(await UserRecord.getProfile(req.params.id)));
     })
 
 
@@ -49,6 +50,11 @@ usersRouter
         res.status(200).json(responseApiHelper(await UserRecord.getUserData(req.params.id)));
     })
 
+    // Pobieranie tła użytkownika
+    .get('/:id/background', async (req, res) => {
+        res.status(200).json(responseApiHelper(await UserRecord.getBackground(req.params.id)));
+    })
+
 
     // Dodawanie użytkownika
     .post('/', async (req, res) => {
@@ -64,6 +70,12 @@ usersRouter
     })
 
 
+    .put('/:userId/like/:like', async (req, res) => {
+        const { userId, like } = req.params;
+        const status = await UserRecord.likeProfile(userId, like);
+        if (!status) throw new ValidationError('Nie znaleziono użytkownika.');
+        res.status(200).json(responseHelper('Pomyślnie polubiono lub usunięto polubienie profilu.'));
+    })
 
 
 

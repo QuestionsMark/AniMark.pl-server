@@ -10,17 +10,10 @@ const newsSchema = new Schema({
         type: String,
         required: true,
     },
-    images: [{
-        src: String,
-    }],
-    videos: [{
-        src: {
-            type: String,
-            trim: true,
-        },
-    }],
+    images: [String],
+    videos: [String],
     otherLinks: [{
-        link: {
+        src: {
             type: String,
             required: true,
             trim: true,
@@ -41,7 +34,7 @@ const newsSchema = new Schema({
     comments: [{
         id: {
             type: String,
-            required: true,
+            default: () => uuid(),
         },
         user: {
             type: SchemaTypes.ObjectId,
@@ -65,7 +58,7 @@ const newsSchema = new Schema({
     }],
     createdAt: {
         type: Date,
-        default: Date.now(),
+        default: () => Date.now(),
         immutable: true,
     },
 }, {

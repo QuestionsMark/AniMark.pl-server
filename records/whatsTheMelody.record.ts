@@ -1,7 +1,6 @@
 import { Types } from "mongoose";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
 import { Comment, CommentPopulate, WhatsTheMelodyAPI, WhatsTheMelodyCandidateAPI, WhatsTheMelodyCondensedAPI, WhatsTheMelodyQuestion, WhatsTheMelodyResults, WTMVotes } from "../types";
-import { v4 as uuid } from "uuid";
 import { Anime } from "../models/anime";
 
 export class WhatsTheMelodyRecord implements WhatsTheMelodyAPI {
@@ -70,7 +69,7 @@ export class WhatsTheMelodyRecord implements WhatsTheMelodyAPI {
     }
 
     static async addNewComment(wtmId: string, userId: string, text: string): Promise<void> {
-        await WhatsTheMelody.findByIdAndUpdate(wtmId, { $push: { comments: { user: new Types.ObjectId(userId), text, id: uuid() } } });
+        await WhatsTheMelody.findByIdAndUpdate(wtmId, { $push: { comments: { user: new Types.ObjectId(userId), text } } });
     };
 
     static async likeComment(wtmId: string, commentId: string, userId: string): Promise<void> {

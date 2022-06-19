@@ -1,14 +1,17 @@
 import { Router } from "express";
+import { ValidationError } from "../middlewares/error";
+import { imgUploadWithValidation, ValidationResponse } from "../middlewares/imgUploadWithValidation";
 import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { NewsRecord } from "../records";
-import { responseApiHelper } from "../utils/responseHelper";
+import { NewsFormEntity } from "../types/formEntities";
+import { responseApiHelper, responseHelper } from "../utils/responseHelper";
 
 export const newsRouter = Router();
 
 newsRouter
     // Pobieranie wszystkich nowości
     .get('/', pagination("NEWS"), (req, res: PaginatedResponse) => {
-        res.end();
+        res.status(200).json(responseApiHelper(res.results, res.amount));
     })
 
 
@@ -26,8 +29,11 @@ newsRouter
 
 
     // Dodawanie nowości
-    .post('/', (req, res) => {
-        res.end();
+    .post('/', imgUploadWithValidation('NEWS_CREATE'), async (req, res: ValidationResponse) => {
+        const { data, errors, uploaded } = res.validationResult;
+        if (errors.length > 0) throw new ValidationError('Niepoprawne dane!', errors);
+        await NewsRecord.create(data as NewsFormEntity, uploaded);
+        res.status(201).json(responseHelper(`Dodano nowy artykuł.`));
     })
 
 

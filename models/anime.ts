@@ -138,7 +138,7 @@ const animeSchema = new Schema({
     comments: [{
         id: {
             type: String,
-            required: true,
+            default: () => uuid(),
         },
         user: {
             type: SchemaTypes.ObjectId,
@@ -147,7 +147,7 @@ const animeSchema = new Schema({
         },
         createdAt: {
             type: Date,
-            default: Date.now(),
+            default: () => Date.now(),
             immutable: true,
         },
         text: {
@@ -162,7 +162,7 @@ const animeSchema = new Schema({
     }],
     createdAt: {
         type: Date,
-        default: Date.now(),
+        default: () => Date.now(),
         immutable: true,
     },
 }, {

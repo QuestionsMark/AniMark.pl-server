@@ -22,6 +22,16 @@ animeRouter
         res.status(200).json(responseApiHelper(await AnimeRecord.getAnimeFormList()));
     })
 
+    // Pobieranie listy miniaturek anime do formularza
+    .get('/images-form', pagination('IMAGES_FORM'), async (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
+    })
+
+    // Pobieranie listy folderów galerii
+    .get('/galery', pagination('GALERY'), async (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
+    })
+
 
     // Pobieranie konkretnego anime
     .get('/:id', (req, res) => {

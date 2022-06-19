@@ -1,20 +1,16 @@
-import { Comment, CommentPopulate } from "../common";
+import { CommentPopulate } from "../common";
+import { OtherLink } from "../formEntities";
 
-export interface OtherLink {
-    link: string;
-    note: string;
+export interface PublicFile {
+    src: string;
 }
 
 export interface NewsAPI {
     _id: string;
     title: string;
     description: string;
-    images: {
-        src: string;
-    }[];
-    videos: {
-        src: string;
-    }[];
+    images: string[];
+    videos: string[];
     otherLinks: OtherLink[];
     views: number;
     viewers: string[];

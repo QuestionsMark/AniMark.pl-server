@@ -27,7 +27,7 @@ const whatsTheMelodySchema = new Schema({
     comments: [{
         id: {
             type: String,
-            required: true,
+            default: () => uuid(),
         },
         user: {
             type: SchemaTypes.ObjectId,
@@ -51,7 +51,7 @@ const whatsTheMelodySchema = new Schema({
     }],
     createdAt: {
         type: Date,
-        default: Date.now(),
+        default: () => Date.now(),
         immutable: true,
     },
 }, {

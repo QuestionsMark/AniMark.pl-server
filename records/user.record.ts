@@ -3,7 +3,8 @@ import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
 import { User, UserModel } from "../models/users";
-import { AchievementAPI, AnimeAPI, FavoriteAnime, Introduction, Points, RecommendedProfileAPI, TypeAPI, UserAnimeData, UserAPI, UserDataAPI } from "../types";
+import { AchievementAPI, AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, TypeAPI, UserAnimeData, UserAPI, UserDataAPI, UserPopulateAPI } from "../types";
+import { getTimeSpentWithAnime } from "../utils/getTimeSpentWithAnime";
 import { registartionValidation, RegistrationFormEntity } from "../validation/registraction";
 
 const defaultPoints: Points = {
@@ -35,6 +36,7 @@ export class UserRecord implements UserAPI {
     likes: string[];
     achievements: string[];
     points: Points;
+    sumOfPoints: number;
     userAnimeData: UserAnimeData;
     introduction: Introduction;
     favoriteAnime: FavoriteAnime[];
@@ -250,5 +252,67 @@ export class UserRecord implements UserAPI {
             await User.findByIdAndUpdate(userId, { $push: { 'userAnimeData.planned': new Types.ObjectId(animeId) } });
         }
         // setWatchedAnimePoints(userID);
+    }
+
+    static async getProfile(userId: string): Promise<ProfileAPI | null> {
+        const user: UserPopulateAPI = await User
+            .findById(userId)
+            .populate('favoriteType')
+            .populate('favoriteAnime.anime', ['title', 'images'])
+            .populate('achievements')
+            .populate('userAnimeData.processOfWatching', ['title', 'images'])
+            .populate('userAnimeData.stopped', ['title', 'images'])
+            .populate('userAnimeData.planned', ['title', 'images'])
+            .populate('userAnimeData.watched.anime', ['title', 'images']);
+        if (!user) return null;
+        const { _id, achievements, avatar, background, createdAt, favoriteAnime, favoriteType, introduction, likes, points, rank, sumOfPoints, userAnimeData, username } = user;
+        const { planned, processOfWatching, stopped, watched } = userAnimeData;
+        return {
+            _id,
+            achievements,
+            avatar,
+            background,
+            createdAt,
+            favoriteAnime: favoriteAnime.map(a => ({
+                anime: {
+                    _id: a.anime._id,
+                    image: a.anime.images.mini,
+                    title: a.anime.title,
+                },
+                rate: a.rate,
+            })),
+            favoriteType,
+            introduction,
+            likes,
+            points,
+            rank,
+            sumOfPoints,
+            userAnimeData: {
+                planned: planned.map(a => ({ _id: a._id, image: a.images.mini, title: a.title })),
+                processOfWatching: processOfWatching.map(a => ({ _id: a._id, image: a.images.mini, title: a.title })),
+                stopped: stopped.map(a => ({ _id: a._id, image: a.images.mini, title: a.title })),
+                watched: watched.map(a => ({ anime: { _id: a.anime._id, image: a.anime.images.mini, title: a.anime.title }, rate: a.rate })),
+            },
+            username,
+            timeSpentWithAnime: await getTimeSpentWithAnime(userId),
+        };
+    }
+
+    static async likeProfile(userId: string, like: string): Promise<boolean> {
+        const user = await User.findById(userId);
+        if (!user) return false;
+        const isLike = user.likes.findIndex(l => l.toString() === like) !== -1;
+        if (isLike) {
+            await User.findByIdAndUpdate(userId, { $pull: { likes: new Types.ObjectId(like) } });
+        } else {
+            await User.findByIdAndUpdate(userId, { $push: { likes: new Types.ObjectId(like) } });
+        }
+        return true;
+    }
+
+    static async getBackground(userId: string): Promise<string> {
+        const user = await User.findById(userId).select('background');
+        if (!user) return '';
+        return user.background;
     }
 }

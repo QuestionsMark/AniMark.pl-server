@@ -31,7 +31,7 @@ export class AnimeRecord implements AnimeAPI {
         // console.log('Recommended array: ', recommendedArr);
 
         const { _id, averageRate, description, images, kind, likes, soundtracks, title, types } = recommendedArr[0];
-        return { _id, averageRate, description: description.description, image: images.mini, kind, likes: likes as any, soundtrackSrc: soundtracks[0].src ? soundtracks[0].src : '', title, types };
+        return { _id, averageRate, description: description.description, image: images.mini, kind, likes: likes as any, soundtrackSrc: soundtracks[0] ? soundtracks[0].src : '', title, types };
     };
 
     static async getAnimeFormList(): Promise<AnimeForm[]> {

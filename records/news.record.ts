@@ -1,13 +1,14 @@
 import { Types } from "mongoose";
 import { News } from "../models/news";
-import { CommentPopulate, NewsAPI, NewsCondensedAPI, OtherLink } from "../types";
+import { CommentPopulate, NewsAPI, NewsCondensedAPI } from "../types";
+import { NewsFormEntity, OtherLink } from "../types/formEntities";
 
 export class NewsRecord implements NewsAPI {
     _id: string;
     title: string;
     description: string;
-    images: { src: string; }[];
-    videos: { src: string; }[];
+    images: string[];
+    videos: string[];
     otherLinks: OtherLink[];
     views: number;
     viewers: string[];
@@ -26,7 +27,7 @@ export class NewsRecord implements NewsAPI {
             comments: comments.length,
             createdAt,
             description,
-            imageSrc: images[0].src,
+            imageSrc: images[0],
             title,
             viewers,
             views,
@@ -46,5 +47,10 @@ export class NewsRecord implements NewsAPI {
         const news: NewsAPI = await News.findById(id);
         if (!news) return null;
         return news;
+    }
+
+    static async create(data: NewsFormEntity, uploaded: string[]): Promise<void> {
+        const { choosedImages, description, otherLinks, title, videos } = data;
+        await News.create({ description, title, images: [...uploaded, ...choosedImages], videos, otherLinks });
     }
 }

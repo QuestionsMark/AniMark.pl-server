@@ -1,6 +1,6 @@
 import { Document, Model, model, Schema, SchemaTypes } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { AchievementAPI, FavoriteAnime, Introduction, Points, RoleEnum, TypeAPI, UserAnimeData, UserAPI } from '../types';
+import { FavoriteAnime, Introduction, Points, RoleEnum, UserAnimeData } from '../types';
 
 export interface UserModel extends Document {
     email: string;
@@ -16,6 +16,7 @@ export interface UserModel extends Document {
     likes: string[];
     achievements: string[];
     points: Points;
+    sumOfPoints: number;
     userAnimeData: UserAnimeData;
     introduction: Introduction;
     favoriteAnime: FavoriteAnime[];
@@ -56,7 +57,7 @@ const userSchema = new Schema({
     },
     background: {
         type: String,
-        default: "background.png",
+        default: "background.webp",
     },
     customBackgrounds: [String],
     likes: [{
@@ -70,6 +71,10 @@ const userSchema = new Schema({
     points: {
         type: Object,
         required: true,
+    },
+    sumOfPoints: {
+        type: Number,
+        default: 0,
     },
     userAnimeData: {
         planned: [{
@@ -116,7 +121,7 @@ const userSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now(),
+        default: () => Date.now(),
         immutable: true,
     },
 }, {

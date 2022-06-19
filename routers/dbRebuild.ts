@@ -103,8 +103,8 @@ dbRebuildRouter
                 title,
                 description,
                 images: newImages,
-                videos,
-                otherLinks,
+                videos: videos.map((l: any) => l.src),
+                otherLinks: otherLinks.map((l: any) => ({ src: l.link, note: l.note })),
                 views,
                 viewers,
                 comments: comments.map((c: any) => ({
@@ -272,7 +272,7 @@ dbRebuildRouter
                     galeryImages: newGaleryImages,
                 },
                 description: {
-                    author: { '$oid': description.authorID ? description.authorID : '6298eecbae88ec661828e0f6' },
+                    author: { '$oid': description.authorID ? description.authorID : '62ac254dcd191734242d3e5f' },
                     description: description.description.slice(0, 11) === "Lorem ipsum" ? newDescription : description.description,
                     createdAt: { "$date": { "$numberLong": String(new Date(description.addedDate).getTime()) } },
                 },
@@ -286,18 +286,26 @@ dbRebuildRouter
         res.end();
     })
 
+    .get('/images', async (req, res) => {
+        res.end();
+    })
+
+    .get('/audio', async (req, res) => {
+        res.end();
+    })
+
     .get('/test', async (req, res) => {
         const json = await readFile('./public/copy/anime.json', 'utf-8');
         const data = JSON.parse(json);
 
         const newData = data.map((a: any) => ({
             ...a,
-            soundtracks: a.soundtracks.map((s: any) => ({
-                ...s,
-                id: uuid(),
-            })),
+            description: {
+                ...a.description,
+                author: a.description.author.$oid !== '6298eecbae88ec661828e0f6' ? a.author : { '$oid': '62ac254dcd191734242d3e5f' },
+            },
         }));
 
-        await writeFile('./public/copy/anime.json', JSON.stringify(newData));
+        await writeFile('./public/copy/new-anime.json', JSON.stringify(newData));
         res.end();
     })

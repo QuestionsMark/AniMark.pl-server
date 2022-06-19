@@ -9,14 +9,14 @@ import { SwordArtOnlineResult } from "../models/swordArtOnlineResults";
 import { Type } from "../models/types";
 import { User } from "../models/users";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
-import { AchievementAPI, AnimeAPI, AnimeCondensedAPI, AnimeFilters, AnimeOnTopAPI, AnimePopulateAPI, Kind, NewsAPI, Sort, SwordArtOnlineResultAPI, TypeAPI, UserAPI, WhatsTheMelodyAPI } from "../types";
+import { AnimeAPI, AnimeFilters, AnimePopulateAPI, Kind, NewsAPI, NewsCondensedAPI, Sort, UserCondensedAPI, UserPopulateAPI } from "../types";
 
 export interface PaginatedResponse extends Response {
-    results: AchievementAPI[] | AnimeCondensedAPI[] | AnimeOnTopAPI[] | NewsAPI[] | SwordArtOnlineResultAPI[] | TypeAPI[] | UserAPI[] | WhatsTheMelodyAPI[];
+    results: any[];
     amount: number;
 }
 
-type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS';
+type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY';
 
 export function pagination(collection: Collection) {
     return async (req: Request, res: PaginatedResponse, next: NextFunction) => {
@@ -120,8 +120,18 @@ export function pagination(collection: Collection) {
                 }
 
                 case 'NEWS': {
-                    res.results = await News.find({ "x": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "x": 1 });
-                    res.amount = await News.countDocuments().where({ "name": { $regex: searchPhrase } });
+                    const news: NewsAPI[] = await News.find({ "title": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "createdAt": -1 });
+                    res.results = news.map(({ _id, comments, createdAt, description, images, title, viewers, views }) => ({
+                        _id,
+                        comments: comments.length,
+                        createdAt,
+                        description,
+                        imageSrc: images[0],
+                        title,
+                        viewers,
+                        views,
+                    })) as NewsCondensedAPI[];
+                    res.amount = await News.countDocuments().where({ "title": { $regex: searchPhrase } });
                     break;
                 }
 
@@ -138,8 +148,32 @@ export function pagination(collection: Collection) {
                 }
 
                 case 'USERS': {
-                    res.results = await User.find({ "x": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "x": 1 });
-                    res.amount = await User.countDocuments().where({ "name": { $regex: searchPhrase } });
+                    const users: UserPopulateAPI[] = await User.find({ "username": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "sumOfPoints": -1 }).select('username').select('avatar').select('background').select('likes').select('achievements').select('sumOfPoints').select('introduction').select('favoriteAnime').select('favoriteType').populate('achievements').populate('favoriteAnime.anime', ['title', 'images']).populate('favoriteType', ['name']);
+                    // Drugie sortowanie po ilości lajków
+                    // const sorted = users.sort((a, b) => {
+                    //     if (a.likes.length > b.likes.length) return -1;
+                    //     if (a.likes.length < b.likes.length) return 1;
+                    //     return 0;
+                    // });
+                    res.results = users.map(({ _id, achievements, avatar, background, favoriteAnime, favoriteType, introduction, likes, sumOfPoints, username }) => ({
+                        _id,
+                        achievements,
+                        avatar,
+                        background,
+                        favoriteAnime: favoriteAnime.map(a => ({
+                            anime: {
+                                _id: a.anime._id,
+                                title: a.anime.title,
+                                image: a.anime.images.mini,
+                            },
+                        })),
+                        favoriteType: favoriteType ? favoriteType.name : null,
+                        introduction,
+                        likes,
+                        sumOfPoints,
+                        username,
+                    }));
+                    res.amount = await User.countDocuments().where({ "username": { $regex: searchPhrase } });
                     break;
                 }
 
@@ -152,6 +186,29 @@ export function pagination(collection: Collection) {
                 case 'PROJECTS': {
                     res.results = await Project.find({ "name": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "createdAt": -1 });
                     res.amount = await Project.countDocuments().where({ "name": { $regex: searchPhrase } });
+                    break;
+                }
+
+                case 'IMAGES_FORM': {
+                    const anime: AnimeAPI[] = await Anime.find({ "title": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "title": 1 }).select('images');
+                    res.results = anime.map(a => a.images.mini);
+                    res.amount = await Anime.countDocuments().where({ "title": { $regex: searchPhrase } });
+                    break;
+                }
+
+                case 'GALERY': {
+                    const anime: AnimeAPI[] = await Anime.find({ "title": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "title": 1 }).select('images').select('title');
+                    res.results = anime.map(a => {
+
+                        const { background, baner, galeryImages, mini } = a.images;
+
+                        return {
+                            _id: a._id,
+                            images: [background, baner, mini, ...galeryImages.filter(i => !([baner.src, background.src, mini.src].includes(i.src)))],
+                            title: a.title,
+                        };
+                    });
+                    res.amount = await Anime.countDocuments().where({ "title": { $regex: searchPhrase } });
                     break;
                 }
             }
