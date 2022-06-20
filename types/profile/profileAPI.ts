@@ -1,4 +1,5 @@
 import { AchievementAPI } from "../achievements";
+import { AnimeCondensedAPI } from "../anime";
 import { TypeAPI } from "../types";
 import { FavoriteAnimeCondensed, Introduction, Points, UserAnimeDataCondensedAPI } from "../users";
 
@@ -18,4 +19,9 @@ export interface ProfileAPI {
     userAnimeData: UserAnimeDataCondensedAPI;
     favoriteAnime: FavoriteAnimeCondensed[];
     timeSpentWithAnime: number;
+}
+
+export interface ProfileAnimeAPI {
+    anime: AnimeCondensedAPI;
+    rate: number;
 }

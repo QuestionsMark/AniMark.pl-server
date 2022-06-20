@@ -34,6 +34,11 @@ animeRouter
 
 
     // Pobieranie konkretnego anime
+    .get('/:id/types', async (req, res) => {
+        res.status(200).json(responseApiHelper(await AnimeRecord.getTypes(req.params.id)));
+    })
+
+    // Pobieranie konkretnego anime
     .get('/:id', (req, res) => {
         res.end();
     })

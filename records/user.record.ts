@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
 import { User, UserModel } from "../models/users";
-import { AchievementAPI, AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, TypeAPI, UserAnimeData, UserAPI, UserDataAPI, UserPopulateAPI } from "../types";
+import { AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserPopulateAPI } from "../types";
 import { getTimeSpentWithAnime } from "../utils/getTimeSpentWithAnime";
 import { registartionValidation, RegistrationFormEntity } from "../validation/registraction";
 

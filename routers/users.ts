@@ -56,6 +56,12 @@ usersRouter
     })
 
 
+    // Pobieranie tła użytkownika
+    .get('/:id/anime-top', pagination('USER_ANIME_TOP'), async (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
+    })
+
+
     // Dodawanie użytkownika
     .post('/', async (req, res) => {
         const { email, login, password, username, rulesAcceptation } = req.body as RegistrationFormEntity;

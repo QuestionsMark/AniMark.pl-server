@@ -9,14 +9,14 @@ import { SwordArtOnlineResult } from "../models/swordArtOnlineResults";
 import { Type } from "../models/types";
 import { User } from "../models/users";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
-import { AnimeAPI, AnimeFilters, AnimePopulateAPI, Kind, NewsAPI, NewsCondensedAPI, Sort, UserCondensedAPI, UserPopulateAPI } from "../types";
+import { AnimeAPI, AnimeFilters, AnimePopulateAPI, Kind, NewsAPI, NewsCondensedAPI, ProfileAnimeAPI, Sort, UserPopulateAPI } from "../types";
 
 export interface PaginatedResponse extends Response {
     results: any[];
     amount: number;
 }
 
-type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY';
+type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY' | 'USER_ANIME_TOP';
 
 export function pagination(collection: Collection) {
     return async (req: Request, res: PaginatedResponse, next: NextFunction) => {
@@ -209,6 +209,36 @@ export function pagination(collection: Collection) {
                         };
                     });
                     res.amount = await Anime.countDocuments().where({ "title": { $regex: searchPhrase } });
+                    break;
+                }
+
+                case 'USER_ANIME_TOP': {
+                    const user: any = await User
+                        .findById(req.params.id)
+                        .select('userAnimeData.watched')
+                        .populate('userAnimeData.watched.anime', ['kind', 'title', 'types', 'averageRate', 'images'])
+                        .populate('userAnimeData.watched.anime.types');
+                    if (!user) return;
+                    const anime = (user.userAnimeData.watched as any[]).filter(a => a.anime.title.match(searchPhrase));
+                    res.results = anime
+                        .sort((a, b) => {
+                            if (a.rate > b.rate) return -1;
+                            if (a.rate < b.rate) return 1;
+                            return 0;
+                        })
+                        .slice(startIndex, startIndex + limit)
+                        .map(({ anime, rate }) => ({
+                            anime: {
+                                _id: anime._id,
+                                kind: anime.kind,
+                                title: anime.title,
+                                types: anime.types,
+                                averageRate: anime.averageRate,
+                                image: anime.images.mini,
+                            },
+                            rate,
+                        }));
+                    res.amount = anime.length;
                     break;
                 }
             }

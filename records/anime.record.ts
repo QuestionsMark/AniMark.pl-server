@@ -1,5 +1,5 @@
 import { Anime } from "../models/anime";
-import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind } from "../types";
+import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI } from "../types";
 
 export class AnimeRecord implements AnimeAPI {
     _id: string;
@@ -36,5 +36,11 @@ export class AnimeRecord implements AnimeAPI {
 
     static async getAnimeFormList(): Promise<AnimeForm[]> {
         return Anime.find().select('title').sort({ 'title': 1 });
+    }
+
+    static async getTypes(animeId: string): Promise<TypeAPI[] | null> {
+        const anime = await Anime.findById(animeId).select('types').populate('types');
+        if (!anime) return null;
+        return anime.types;
     }
 }
