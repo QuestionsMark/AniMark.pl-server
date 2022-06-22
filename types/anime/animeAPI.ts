@@ -102,3 +102,18 @@ export interface AnimeCondensedAPI {
     averageRate: number;
     image: AnimeImage;
 }
+
+export interface AnimeCreatePreview {
+    mini: {
+        size: number;
+        src: string;
+    };
+    baner: {
+        size: number;
+        src: string;
+    };
+    background: {
+        size: number;
+        src: string;
+    };
+}

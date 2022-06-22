@@ -30,9 +30,9 @@ newsRouter
 
     // Dodawanie nowości
     .post('/', imgUploadWithValidation('NEWS_CREATE'), async (req, res: ValidationResponse) => {
-        const { data, errors, uploaded } = res.validationResult;
+        const { data, errors, uploadedImages } = res.validationResult;
         if (errors.length > 0) throw new ValidationError('Niepoprawne dane!', errors);
-        await NewsRecord.create(data as NewsFormEntity, uploaded);
+        await NewsRecord.create(data as NewsFormEntity, uploadedImages);
         res.status(201).json(responseHelper(`Dodano nowy artykuł.`));
     })
 

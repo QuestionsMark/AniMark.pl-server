@@ -11,6 +11,11 @@ typesRouter
         res.end();
     })
 
+    // Pobieranie wszystkich gatunków do formularza
+    .get('/form', async (req, res) => {
+        res.status(200).json(responseApiHelper(await TypeRecord.getFormList()));
+    })
+
     // Pobieranie wszystkich gatunków
     .get('/all', async (req, res) => {
         res.status(200).json(responseApiHelper(await TypeRecord.getAll()));

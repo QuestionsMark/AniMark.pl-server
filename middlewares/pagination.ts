@@ -16,7 +16,7 @@ export interface PaginatedResponse extends Response {
     amount: number;
 }
 
-type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY' | 'USER_ANIME_TOP';
+type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY' | 'USER_ANIME_TOP' | 'SEASONS_FORM';
 
 export function pagination(collection: Collection) {
     return async (req: Request, res: PaginatedResponse, next: NextFunction) => {
@@ -239,6 +239,12 @@ export function pagination(collection: Collection) {
                             rate,
                         }));
                     res.amount = anime.length;
+                    break;
+                }
+
+                case 'SEASONS_FORM': {
+                    res.results = await Anime.find({ "title": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "title": 1 }).select('title');
+                    res.amount = await Anime.countDocuments().where({ "title": { $regex: searchPhrase } });
                     break;
                 }
             }

@@ -97,7 +97,7 @@ const animeSchema = new Schema({
     soundtracks: [{
         id: {
             type: String,
-            required: true,
+            default: () => uuid(),
         },
         src: {
             type: String,

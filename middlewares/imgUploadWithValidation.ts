@@ -3,14 +3,16 @@ import { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
 import { v4 as uuid } from 'uuid';
 import { ValidationError } from './error';
-import { FormEntity, NewsFormEntity, ValidationType } from '../types/formEntities';
-import { deleteImages } from '../utils/deleteImages';
+import { AnimeCreateEntity, FormEntity, NewsFormEntity, ValidationType } from '../types/formEntities';
+import { deleteFiles } from '../utils/deleteImages';
 import { newsCreateValidation } from '../validation/newsCreateValidation';
+import { animeCreateValidation } from '../validation/animeCreateValidation';
 
 export interface ValidationResult {
     errors: string[];
     data: FormEntity;
-    uploaded: string[];
+    uploadedImages?: string[];
+    uploadedFiles?: string[];
 }
 
 export interface ValidationResponse extends Response {
@@ -21,10 +23,12 @@ const checkValidation = (data: FormEntity, type: ValidationType): string[] => {
     switch (type) {
         case 'NEWS_CREATE':
             return newsCreateValidation(data as NewsFormEntity);
+        case 'ANIME_CREATE':
+            return animeCreateValidation(data as AnimeCreateEntity);
     }
 }
 
-const checkFileType = (file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const checkImgFileType = (file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const filetypes = /jpeg|jpg|png|webp|gif/;
     const extnameTest = filetypes.test(extname(file.originalname).toLowerCase());
     const mimetypeTest = filetypes.test(file.mimetype);
@@ -34,39 +38,82 @@ const checkFileType = (file: Express.Multer.File, cb: multer.FileFilterCallback)
     cb(new ValidationError('Niepoprawne dane!', ['Format plików musi być jednym z formatów grafik.']));
 };
 
+const checkFilesType = (file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    const filetypes = /jpeg|jpg|png|webp|gif|mp3/;
+    const mimetypes = /audio\/mpeg|jpeg|jpg|png|webp|gif/;
+    const extnameTest = filetypes.test(extname(file.originalname).toLowerCase());
+    const mimetypeTest = mimetypes.test(file.mimetype);
+    if (extnameTest && mimetypeTest) {
+        return cb(null, true);
+    }
+    cb(new ValidationError('Niepoprawne dane!', ['Format plików musi być jednym z formatów grafik.']));
+};
+
 const storage = multer.diskStorage({
-    destination: './public/image',
+    destination: './public/media',
     filename: function (req, file, cb) {
         cb(null, uuid());
     }
 });
 
-const upload = multer({
+const imgUpload = multer({
     storage,
     limits: { fileSize: 10485760 },
     fileFilter: function (req, file, cb) {
-        checkFileType(file, cb);
+        checkImgFileType(file, cb);
     }
 }).array('img');
+
+const filesUpload = multer({
+    storage,
+    limits: { fileSize: 10485760 },
+    fileFilter: function (req, file, cb) {
+        checkFilesType(file, cb);
+    }
+}).array('file');
 
 
 export const imgUploadWithValidation = (type: ValidationType) => {
     return (req: Request, res: ValidationResponse, next: NextFunction) => {
-        upload(req, res, async (err) => {
+        imgUpload(req, res, async (err) => {
             if (err) {
                 return next(err);
             };
             const data: FormEntity = JSON.parse(req.body.data);
             const errors = checkValidation(data, type);
             if (errors.length > 0) {
-                await deleteImages(Array.from(req.files as Express.Multer.File[]).map(f => f.filename));
-                res.validationResult = { errors, data, uploaded: [] };
+                await deleteFiles(Array.from(req.files as Express.Multer.File[]).map(f => f.filename));
+                res.validationResult = { errors, data, uploadedImages: [] };
             } else {
                 const images = req.files as Express.Multer.File[];
                 res.validationResult = {
                     errors: [],
                     data,
-                    uploaded: images.map(i => i.filename),
+                    uploadedImages: images.map(i => i.filename),
+                };
+            }
+            next();
+        });
+    }
+};
+
+export const imgAndAudioUploadWithValidation = (type: ValidationType) => {
+    return (req: Request, res: ValidationResponse, next: NextFunction) => {
+        filesUpload(req, res, async (err) => {
+            if (err) {
+                return next(err);
+            };
+            const data: FormEntity = JSON.parse(req.body.data);
+            const errors = checkValidation(data, type);
+            if (errors.length > 0) {
+                await deleteFiles(Array.from(req.files as Express.Multer.File[]).map(f => f.filename));
+                res.validationResult = { errors, data };
+            } else {
+                const files = req.files as Express.Multer.File[];
+                res.validationResult = {
+                    errors: [],
+                    data,
+                    uploadedFiles: files.map(i => i.filename),
                 };
             }
             next();

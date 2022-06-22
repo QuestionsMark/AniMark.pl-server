@@ -1,5 +1,5 @@
 import { Type } from "../models/types";
-import { TypeAPI } from "../types";
+import { TypeAPI, TypeFormListAPI } from "../types";
 
 export class TypeRecord implements TypeAPI {
     _id: string;
@@ -13,5 +13,9 @@ export class TypeRecord implements TypeAPI {
 
     static async getAll(): Promise<TypeAPI[]> {
         return Type.find();
+    };
+
+    static async getFormList(): Promise<TypeFormListAPI[]> {
+        return Type.find().select('name').sort({ 'name': 1 });
     };
 }
