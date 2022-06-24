@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ValidationError } from "../middlewares/error";
 import { imgUploadWithValidation, ValidationResponse } from "../middlewares/imgUploadWithValidation";
 import { PaginatedResponse, pagination } from "../middlewares/pagination";
+import { News } from "../models/news";
 import { NewsRecord } from "../records";
 import { NewsFormEntity } from "../types/formEntities";
 import { responseApiHelper, responseHelper } from "../utils/responseHelper";
@@ -23,7 +24,6 @@ newsRouter
 
     // Pobieranie konkretnej nowości
     .get('/:id', async (req, res) => {
-        await NewsRecord.bumpViews(req.params.id, req.query.userId as string);
         res.status(200).json(responseApiHelper(await NewsRecord.getOne(req.params.id)));
     })
 
@@ -37,13 +37,41 @@ newsRouter
     })
 
 
+    // Dodawanie komentarza do nowości
+    .post('/:id/comments', async (req, res: ValidationResponse) => {
+        const { text, userId } = req.body;
+        await NewsRecord.newComment(req.params.id, text, userId);
+        res.status(201).json(responseHelper(`Dodano nowy komentarz.`));
+    })
+
+
     // Usuwanie nowości
     .delete('/:id', (req, res) => {
         res.end();
+    })
+
+    // Usuwanie komentarza nowości
+    .delete('/:id/comments/:commentId', async (req, res) => {
+        const { commentId, id } = req.params;
+        res.status(200).json(responseHelper(await NewsRecord.deleteComment(id, commentId)));
+    })
+
+
+    // Usuwanie grafiki konkretnej nowości
+    .delete('/:id/image/:imageSrc', async (req, res) => {
+        const { id, imageSrc } = req.params;
+        await NewsRecord.deleteImage(id, imageSrc);
+        res.status(200).json(responseHelper('Grafika została usunięta.'));
     })
 
 
     // Edytowanie nowości
     .patch('/:id', (req, res) => {
         res.end();
+    })
+
+    // Likeowanie komentarza nowości
+    .put('/:id/comments/:commentId/like/:userId', async (req, res) => {
+        const { commentId, id, userId } = req.params;
+        res.status(200).json(responseHelper(await NewsRecord.likeComment(id, commentId, userId)));
     })

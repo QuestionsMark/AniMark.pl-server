@@ -295,17 +295,14 @@ dbRebuildRouter
     })
 
     .get('/test', async (req, res) => {
-        const json = await readFile('./public/copy/anime.json', 'utf-8');
+        const json = await readFile('./public/copy/news.json', 'utf-8');
         const data = JSON.parse(json);
 
         const newData = data.map((a: any) => ({
             ...a,
-            description: {
-                ...a.description,
-                author: a.description.author.$oid !== '6298eecbae88ec661828e0f6' ? a.author : { '$oid': '62ac254dcd191734242d3e5f' },
-            },
+            videos: a.videos.map((l: any) => l.src),
         }));
 
-        await writeFile('./public/copy/new-anime.json', JSON.stringify(newData));
+        await writeFile('./public/copy/new-news.json', JSON.stringify(newData));
         res.end();
     })

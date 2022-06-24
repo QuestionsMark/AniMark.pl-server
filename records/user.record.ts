@@ -124,10 +124,10 @@ export class UserRecord implements UserAPI {
     }
 
     static async getUserData(userId: string): Promise<UserDataAPI | null> {
-        const user = await User.findById(userId).select('favoriteAnime').select('favoriteType').select('userAnimeData');
+        const user = await User.findById(userId).select('favoriteAnime').select('favoriteType').select('userAnimeData').select('avatar');
         if (!user) return null;
-        const { userAnimeData, favoriteAnime, favoriteType } = user;
-        return { userAnimeData, favoriteAnime, favoriteType };
+        const { avatar, userAnimeData, favoriteAnime, favoriteType } = user;
+        return { avatar, userAnimeData, favoriteAnime, favoriteType };
     }
 
 
