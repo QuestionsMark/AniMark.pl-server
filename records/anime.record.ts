@@ -1,9 +1,32 @@
 import { NextFunction } from "express";
+import { Types } from "mongoose";
+import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
-import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI } from "../types";
+import { User } from "../models/users";
+import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI } from "../types";
 import { AnimeCreateEntity } from "../types/formEntities";
 import { deleteFiles } from "../utils/deleteImages";
 import { getDuration } from "../utils/getDuration";
+
+const changeFavoriteRate = async (animeId: string, userId: string, rate: number) => {
+    await User.findByIdAndUpdate(userId, { 'favoriteAnime.$[anime].rate': rate }, { arrayFilters: [{ 'anime.anime': new Types.ObjectId(animeId) }] });
+};
+
+const resetFavoriteRate = async (animeId: string, userId: string) => {
+    await User.findByIdAndUpdate(userId, { 'favoriteAnime.$[anime].rate': 0 }, { arrayFilters: [{ 'anime.anime': new Types.ObjectId(animeId) }] });
+};
+
+const changeWatchedRate = async (animeId: string, userId: string, rate: number) => {
+    await User.findByIdAndUpdate(userId, { 'userAnimeData.watched.$[element].rate': rate }, { arrayFilters: [{ 'element.anime': new Types.ObjectId(animeId) }] });
+};
+
+const pullRate = async (animeId: string, userId: string) => {
+    await Anime.findByIdAndUpdate(animeId, { $pull: { rate: { user: new Types.ObjectId(userId) } } });
+};
+
+const pushRate = async (animeId: string, userId: string, rate: number) => {
+    await Anime.findByIdAndUpdate(animeId, { $push: { rate: { user: new Types.ObjectId(userId), rate } } });
+};
 
 export class AnimeRecord implements AnimeAPI {
     _id: string;
@@ -44,6 +67,12 @@ export class AnimeRecord implements AnimeAPI {
         const anime = await Anime.findById(animeId).select('types').populate('types');
         if (!anime) return null;
         return anime.types;
+    }
+
+    static async getBackground(animeId: string): Promise<string> {
+        const anime = await Anime.findById(animeId).select('images.background');
+        if (!anime) return '';
+        return anime.images.background.src;
     }
 
     static async create(data: AnimeCreateEntity, uploadedFiles: string[], next: NextFunction): Promise<string> {
@@ -98,5 +127,136 @@ export class AnimeRecord implements AnimeAPI {
             next(error);
             return '';
         }
+    }
+
+    static async getOne(id: string): Promise<AnimePageAPI | null> {
+        const anime = await Anime
+            .findById(id)
+            .populate('comments.user', ['username', 'avatar'])
+            .populate('description.author', ['username'])
+            .populate('seasons', ['images.mini', 'title'])
+            .populate('types', ['name']) as AnimePopulateAPI;
+        if (!anime) return null;
+        const { _id, averageRate, comments, createdAt, description, images, info, kind, likes, rate, seasons, soundtracks, title, types, watchLink } = anime;
+        return {
+            _id,
+            averageRate,
+            comments,
+            createdAt,
+            description,
+            images,
+            info,
+            kind,
+            likes,
+            rate,
+            seasons: seasons.map(s => ({ _id: s._id, image: s.images.mini, title: s.title })),
+            soundtracks,
+            title,
+            types,
+            watchLink,
+        }
+    }
+
+    static async newRate(id: string, rate: number, userId: string): Promise<string> {
+        const user = await User.findById(userId).select('userAnimeData.watched').select('favoriteAnime') as UserAPI;
+        if (!user) throw new ValidationError('Nie znaleziono uzytkownika.');
+        const isWatched = user.userAnimeData.watched.findIndex(a => a.anime.toString() === id) !== -1;
+        const isFavourite = user.favoriteAnime.findIndex(a => a.anime.toString() === id) !== -1;
+        const anime = await Anime.findById(id).select('rate') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const rateIndex = anime.rate.findIndex(r => r.user.toString() === userId);
+        const isRate = rateIndex !== -1;
+
+        if (isFavourite) {
+            if (isWatched) {
+                if (isRate) {
+                    const isRateSame = anime.rate[rateIndex].rate === rate;
+                    await changeWatchedRate(id, userId, isRateSame ? 0 : rate);
+                    await pullRate(id, userId);
+                    if (!isRateSame) {
+                        await pushRate(id, userId, rate);
+                        await changeFavoriteRate(id, userId, rate);
+                    } else {
+                        await resetFavoriteRate(id, userId);
+                    }
+                } else {
+                    await changeFavoriteRate(id, userId, rate);
+                    await changeWatchedRate(id, userId, rate);
+                    await pushRate(id, userId, rate);
+                }
+            } else {
+                if (isRate) {
+                    const isRateSame = anime.rate[rateIndex].rate === rate;
+                    await changeFavoriteRate(id, userId, rate);
+                    await pullRate(id, userId);
+                    if (!isRateSame) {
+                        await pushRate(id, userId, rate);
+                    }
+                } else {
+                    await changeFavoriteRate(id, userId, rate);
+                    await pushRate(id, userId, rate);
+                }
+            }
+        } else if (isWatched) {
+            if (isRate) {
+                const isRateSame = anime.rate[rateIndex].rate === rate;
+                await changeWatchedRate(id, userId, rate);
+                await pullRate(id, userId);
+                if (!isRateSame) {
+                    await pushRate(id, userId, rate);
+                }
+            } else {
+                await changeWatchedRate(id, userId, rate);
+                await pushRate(id, userId, rate);
+            }
+        } else {
+            if (isRate) {
+                const isRateSame = anime.rate[rateIndex].rate === rate;
+                await pullRate(id, userId);
+                if (!isRateSame) {
+                    await pushRate(id, userId, rate);
+                }
+            } else {
+                await pushRate(id, userId, rate);
+            }
+        }
+        const newAnime = await Anime.findById(id).select('rate') as AnimeAPI;
+        await Anime.findByIdAndUpdate(id, { averageRate: newAnime.rate.length > 0 ? (newAnime.rate.reduce((p, a) => p + a.rate, 0) / newAnime.rate.length) : 0 });
+        // setLoverAchievement(userID);
+        // setHaterAchievement(userID);
+        return 'Zmieniono ocenę anime.';
+    }
+
+    static async soundtrackLike(id: string, soundtrackId: string, userId: string): Promise<string> {
+        const anime = await Anime.findById(id).select('soundtracks') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const isLike = anime.soundtracks.find(s => s.id === soundtrackId).likes.findIndex(l => l.toString() === userId) !== -1;
+        if (isLike) {
+            await Anime.findByIdAndUpdate(id, { $pull: { 'soundtracks.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': soundtrackId }] });
+        } else {
+            await Anime.findByIdAndUpdate(id, { $push: { 'soundtracks.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': soundtrackId }] });
+        }
+        return 'Zmieniono like w soundtracku.'
+    }
+
+    static async newComment(id: string, userId: string, text: string): Promise<string> {
+        await Anime.findByIdAndUpdate(id, { $push: { comments: { user: new Types.ObjectId(userId), text } } });
+        return 'Dodano nowy komentarz.'
+    }
+
+    static async deleteComment(id: string, commentId: string): Promise<string> {
+        await Anime.findByIdAndUpdate(id, { $pull: { comments: { id: commentId } } });
+        return 'Komentarz został usunięty.';
+    }
+
+    static async likeComment(id: string, commentId: string, userId: string): Promise<string> {
+        const anime: AnimeAPI = await Anime.findById(id).select('comments');
+        const isLike = anime.comments.find(c => c.id === commentId).likes.findIndex(l => l.toString() === userId) !== -1;
+        if (isLike) {
+            await Anime.findByIdAndUpdate(id, { $pull: { 'comments.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': commentId }] });
+        } else {
+            await Anime.findByIdAndUpdate(id, { $push: { 'comments.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': commentId }] });
+        }
+        return 'Dodano lub usunięto like.';
     }
 }

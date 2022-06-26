@@ -42,13 +42,20 @@ animeRouter
 
 
     // Pobieranie konkretnego anime
+    .get('/:id', async (req, res) => {
+        res.status(200).json(responseApiHelper(await AnimeRecord.getOne(req.params.id)));
+    })
+
+
+    // Pobieranie gatunków konkretnego anime
     .get('/:id/types', async (req, res) => {
         res.status(200).json(responseApiHelper(await AnimeRecord.getTypes(req.params.id)));
     })
 
-    // Pobieranie konkretnego anime
-    .get('/:id', (req, res) => {
-        res.end();
+
+    // Pobieranie tła konkretnego anime
+    .get('/:id/background', async (req, res) => {
+        res.status(200).json(responseApiHelper(await AnimeRecord.getBackground(req.params.id)));
     })
 
 
@@ -61,13 +68,47 @@ animeRouter
     })
 
 
+    // Dodawanie anime
+    .post('/:id/comments', async (req, res) => {
+        const { userId, text } = req.body;
+        res.status(201).json(responseHelper(await AnimeRecord.newComment(req.params.id, userId, text)));
+    })
+
+
     // Usuwanie anime
     .delete('/:id', (req, res) => {
         res.end();
     })
 
 
+    // Usuwanie komentarza nowości
+    .delete('/:id/comments/:commentId', async (req, res) => {
+        const { commentId, id } = req.params;
+        res.status(200).json(responseHelper(await AnimeRecord.deleteComment(id, commentId)));
+    })
+
+
     // Edytowanie anime
     .patch('/:id', (req, res) => {
         res.end();
+    })
+
+
+    // Zmiana oceny anime
+    .put('/:id/rate', async (req, res) => {
+        const { rate, userId } = req.body;
+        res.status(200).json(responseHelper(await AnimeRecord.newRate(req.params.id, rate, userId)));
+    })
+
+
+    // Zmiana like'a soundtracku anime
+    .put('/:id/soundtracks/:soundtrackId/like/:userId', async (req, res) => {
+        const { id, soundtrackId, userId } = req.params;
+        res.status(200).json(responseHelper(await AnimeRecord.soundtrackLike(id, soundtrackId, userId)));
+    })
+
+    // Likeowanie komentarza nowości
+    .put('/:id/comments/:commentId/like/:userId', async (req, res) => {
+        const { commentId, id, userId } = req.params;
+        res.status(200).json(responseHelper(await AnimeRecord.likeComment(id, commentId, userId)));
     })

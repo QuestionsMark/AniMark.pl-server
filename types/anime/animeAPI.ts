@@ -70,14 +70,14 @@ export interface AnimePopulateAPI {
     watchLink: string;
     info: AnimeInfo;
     types: TypeAPI[];
-    rates: Rate[];
+    rate: Rate[];
     averageRate: number;
-    likes: UserAPI[];
+    likes: string[];
     images: AnimeImagesObject;
     soundtracks: Soundtrack[];
     description: AnimeDescriptionPopulate;
     seasons: AnimeAPI[];
-    comments: Comment[];
+    comments: CommentPopulate[];
     createdAt: Date;
 }
 
@@ -125,7 +125,7 @@ export interface AnimePageAPI {
     watchLink: string;
     info: AnimeInfo;
     types: TypeAPI[];
-    rates: Rate[];
+    rate: Rate[];
     averageRate: number;
     likes: string[];
     images: AnimeImagesObject;
