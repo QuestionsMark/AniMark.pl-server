@@ -59,6 +59,12 @@ animeRouter
     })
 
 
+    // Pobieranie grafik do galerii anime
+    .get('/:id/galery', async (req, res) => {
+        res.status(200).json(responseApiHelper(await AnimeRecord.getGalery(req.params.id)));
+    })
+
+
     // Dodawanie anime
     .post('/', imgAndAudioUploadWithValidation('ANIME_CREATE'), async (req, res: ValidationResponse, next) => {
         const { data, errors, uploadedFiles } = res.validationResult;

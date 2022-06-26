@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
 import { User } from "../models/users";
-import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI } from "../types";
+import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI, AnimeImage, galeryAPI } from "../types";
 import { AnimeCreateEntity } from "../types/formEntities";
 import { deleteFiles } from "../utils/deleteImages";
 import { getDuration } from "../utils/getDuration";
@@ -258,5 +258,15 @@ export class AnimeRecord implements AnimeAPI {
             await Anime.findByIdAndUpdate(id, { $push: { 'comments.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': commentId }] });
         }
         return 'Dodano lub usunięto like.';
+    }
+
+    static async getGalery(id: string): Promise<galeryAPI> {
+        const anime = await Anime.findById(id).select('images.galeryImages').select('title') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        return {
+            _id: id,
+            images: anime.images.galeryImages,
+            title: anime.title,
+        };
     }
 }
