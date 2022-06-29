@@ -7,3 +7,5 @@ export interface SwordArtOnlineResultAPI {
     swords: number;
     createdAt: Date;
 }
+
+export type SAOCSort = 'time' | 'username' | 'level' | 'achievements' | 'swords'; 

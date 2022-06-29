@@ -3,20 +3,21 @@ import { Types } from "mongoose";
 import { Achievement } from "../models/achievements";
 import { Anime } from "../models/anime";
 import { AnimeOnTop } from "../models/animeOnTop";
+import { CityDefenceResult } from "../models/cityDefenceResults";
 import { News } from "../models/news";
 import { Project } from "../models/projects";
 import { SwordArtOnlineResult } from "../models/swordArtOnlineResults";
 import { Type } from "../models/types";
 import { User } from "../models/users";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
-import { AnimeAPI, AnimeFilters, AnimePopulateAPI, Kind, NewsAPI, NewsCondensedAPI, ProfileAnimeAPI, Sort, UserPopulateAPI } from "../types";
+import { AnimeAPI, AnimeFilters, AnimePopulateAPI, CityDefenceSort, ComplexTypeAPI, Kind, NewsAPI, NewsCondensedAPI, SAOCSort, Sort, TypeAPI, UserAPI, UserPopulateAPI } from "../types";
 
 export interface PaginatedResponse extends Response {
     results: any[];
     amount: number;
 }
 
-type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_RESULTS' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY' | 'USER_ANIME_TOP' | 'SEASONS_FORM';
+type Collection = 'ACHIEVEMENTS' | 'ANIME' | 'ANIME_ON_TOP' | 'NEWS' | 'SWORD_ART_ONLINE_CLICKER' | 'TYPES' | 'USERS' | 'WHATS_THE_MELODY' | 'PROJECTS' | 'IMAGES_FORM' | 'GALERY' | 'USER_ANIME_TOP' | 'SEASONS_FORM' | 'CITY_DEFENCE';
 
 export function pagination(collection: Collection) {
     return async (req: Request, res: PaginatedResponse, next: NextFunction) => {
@@ -135,14 +136,75 @@ export function pagination(collection: Collection) {
                     break;
                 }
 
-                case 'SWORD_ART_ONLINE_RESULTS': {
-                    res.results = await SwordArtOnlineResult.find({ "x": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "x": 1 });
-                    res.amount = await SwordArtOnlineResult.countDocuments().where({ "name": { $regex: searchPhrase } });
+                case 'SWORD_ART_ONLINE_CLICKER': {
+
+                    const sortBy = (sort: SAOCSort) => {
+                        switch (sort) {
+                            case 'time':
+                                return { "completionTime": 1 };
+
+                            case 'achievements':
+                                return { "achievements": -1 };
+
+                            case 'level':
+                                return { "lvl": 1 };
+
+                            case 'swords':
+                                return { "swords": 1 };
+
+                            case 'username':
+                                return { "username": 1 };
+                        }
+                    };
+
+                    const { rankingSort } = req.query;
+                    res.results = await SwordArtOnlineResult.find({ "username": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort(sortBy(rankingSort as SAOCSort));
+                    res.amount = await SwordArtOnlineResult.countDocuments().where({ "username": { $regex: searchPhrase } });
+                    break;
+                }
+
+                case 'CITY_DEFENCE': {
+                    const sortBy = (sort: CityDefenceSort) => {
+                        switch (sort) {
+                            case 'accuracy':
+                                return { "accuracy": -1 };
+
+                            case 'date':
+                                return { "createdAt": -1 };
+
+                            case 'overall':
+                                return { "points": -1, "accuracy": -1 };
+
+                            case 'points':
+                                return { "points": -1 };
+
+                            case 'username':
+                                return { "username": 1 };
+                        }
+                    };
+
+                    const { rankingSort } = req.query;
+                    res.results = await CityDefenceResult.find({ "username": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort(sortBy(rankingSort as CityDefenceSort));
+                    res.amount = await CityDefenceResult.countDocuments().where({ "username": { $regex: searchPhrase } });
                     break;
                 }
 
                 case 'TYPES': {
-                    res.results = await Type.find({ "x": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "x": 1 });
+                    const types = await Type.find({ "name": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "name": 1 }) as TypeAPI[];
+                    const complexTypes: ComplexTypeAPI[] = [];
+                    for (const { _id, name } of types) {
+                        const anime = await Anime.find({ "types": { $in: [new Types.ObjectId(_id)] } }).limit(3).sort({ averageRate: -1 }).select('images.mini').select('title').select('averageRate') as AnimePopulateAPI[];
+                        const lovers = await User.find({ favoriteType: new Types.ObjectId(_id) }).limit(3).sort({ sumOfPoints: -1 }).select('username').select('avatar') as UserAPI[];
+                        const animeCount = await Anime.countDocuments().where({ "types": { $in: [new Types.ObjectId(_id)] } });
+                        complexTypes.push({
+                            _id,
+                            animeCount,
+                            bestAnime: anime.map(a => ({ anime: { _id: a._id, image: a.images.mini, title: a.title }, rate: a.averageRate })),
+                            lovers,
+                            name,
+                        });
+                    }
+                    res.results = complexTypes;
                     res.amount = await Type.countDocuments().where({ "name": { $regex: searchPhrase } });
                     break;
                 }
@@ -178,8 +240,8 @@ export function pagination(collection: Collection) {
                 }
 
                 case 'WHATS_THE_MELODY': {
-                    res.results = await WhatsTheMelody.find({ "x": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "x": 1 });
-                    res.amount = await WhatsTheMelody.countDocuments().where({ "name": { $regex: searchPhrase } });
+                    res.results = await WhatsTheMelody.find({ "correctAnswear": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "createdAt": -1 });
+                    res.amount = await WhatsTheMelody.countDocuments().where({ "correctAnswear": { $regex: searchPhrase } });
                     break;
                 }
 

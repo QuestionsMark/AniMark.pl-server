@@ -29,6 +29,12 @@ usersRouter
     })
 
 
+    // Pobieranie konkretnego użytkownika
+    .get('/:id/info', async (req, res) => {
+        res.status(200).json(responseApiHelper(await UserRecord.getInfo(req.params.id)));
+    })
+
+
     // Pobieranie danych o anime użytkownika
     .get('/:id/user-anime-data', async (req, res) => {
         res.status(200).json(responseApiHelper(await UserRecord.getAnimeData(req.params.id)));

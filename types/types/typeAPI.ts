@@ -22,5 +22,20 @@ export interface ComplexTypeAPI {
     name: string;
     animeCount: number;
     lovers: TypeLoverAPI[];
-    bestAnime: AnimeSeason[]
+    bestAnime: {
+        anime: AnimeSeason;
+        rate: number;
+    }[];
+}
+
+export interface TypePageAPI {
+    _id: string;
+    description: string;
+    name: string;
+    animeCount: number;
+    lovers: TypeLoverAPI[];
+    bestAnime: {
+        anime: AnimeSeason;
+        rate: number;
+    }[];
 }

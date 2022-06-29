@@ -176,3 +176,9 @@ export interface UserCondensedAPI {
     favoriteAnime: FavoriteAnimeCondensed[];
     favoriteType: string;
 }
+
+export interface UserInfoAPI {
+    _id: string;
+    username: string;
+    avatar: string;
+}

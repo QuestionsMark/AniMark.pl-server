@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pagination } from "../middlewares/pagination";
+import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { WhatsTheMelodyRecord } from "../records";
 import { responseApiHelper } from "../utils/responseHelper";
 
@@ -7,8 +7,8 @@ export const whatsTheMelodyRouter = Router();
 
 whatsTheMelodyRouter
     // Pobieranie wszystkich WTM
-    .get('/', pagination("WHATS_THE_MELODY"), (req, res) => {
-        res.end();
+    .get('/', pagination("WHATS_THE_MELODY"), (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
     })
 
 

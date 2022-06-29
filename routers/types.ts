@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { pagination } from "../middlewares/pagination";
+import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { TypeRecord } from "../records";
 import { responseApiHelper } from "../utils/responseHelper";
 
@@ -7,8 +7,8 @@ export const typesRouter = Router();
 
 typesRouter
     // Pobieranie wszystkich gatunków
-    .get('/', pagination("TYPES"), (req, res) => {
-        res.end();
+    .get('/', pagination("TYPES"), (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
     })
 
     // Pobieranie wszystkich gatunków do formularza
@@ -23,8 +23,8 @@ typesRouter
 
 
     // Pobieranie konkretnego gatunku
-    .get('/:id', (req, res) => {
-        res.end();
+    .get('/:id', async (req, res) => {
+        res.status(200).json(responseApiHelper(await TypeRecord.getOne(req.params.id)));
     })
 
 

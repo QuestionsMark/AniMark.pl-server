@@ -7,6 +7,7 @@ export interface Queries {
     minRate?: string;
     maxRate?: string;
     sort?: Sort;
+    rankingSort?: 'time' | 'username' | 'achievements' | 'swords' | 'level' | 'points' | 'date' | 'overall' | 'accuracy';
     wantedTypes?: string[];
     unwantedTypes?: string[];
 }

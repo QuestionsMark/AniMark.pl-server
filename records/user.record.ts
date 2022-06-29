@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
 import { User, UserModel } from "../models/users";
-import { AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserPopulateAPI } from "../types";
+import { AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserInfoAPI, UserPopulateAPI } from "../types";
 import { getTimeSpentWithAnime } from "../utils/getTimeSpentWithAnime";
 import { registartionValidation, RegistrationFormEntity } from "../validation/registraction";
 
@@ -314,5 +314,11 @@ export class UserRecord implements UserAPI {
         const user = await User.findById(userId).select('background');
         if (!user) return '';
         return user.background;
+    }
+
+    static async getInfo(userId: string): Promise<UserInfoAPI> {
+        const user = await User.findById(userId).select('avatar').select('username') as UserInfoAPI;
+        if (!user) throw new ValidationError('Nie znaleziono uzytkownika.');
+        return user;
     }
 }

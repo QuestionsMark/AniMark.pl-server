@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { pagination } from "../middlewares/pagination";
+import { PaginatedResponse, pagination } from "../middlewares/pagination";
+import { responseApiHelper } from "../utils/responseHelper";
 
-export const swordArtOnlineResultsRouter = Router();
+export const swordArtOnlineRouter = Router();
 
-swordArtOnlineResultsRouter
+swordArtOnlineRouter
     // Pobieranie wszystkich SAOResult
-    .get('/', pagination("SWORD_ART_ONLINE_RESULTS"), (req, res) => {
-        res.end();
+    .get('/', pagination("SWORD_ART_ONLINE_CLICKER"), (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
     })
 
 

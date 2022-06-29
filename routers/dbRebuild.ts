@@ -294,6 +294,40 @@ dbRebuildRouter
         res.end();
     })
 
+    .get('/sword-art-online-clicker', async (req, res) => {
+        const json = await readFile('./public/copy/sword-art-online-results.json', 'utf-8');
+        const data = JSON.parse(json);
+
+        const newData = data.map((a: any) => {
+            const timeArray = a.completionTime.split(':').map((t: any) => Number(t));
+            const time = (timeArray[0] * 60 * 60 + timeArray[1] * 60 + timeArray[2]) * 1000;
+            return {
+                ...a,
+                completionTime: time,
+                createdAt: { "$date": { "$numberLong": String(new Date().getTime()) } },
+            }
+        });
+
+        await writeFile('./public/copy/new-sword-art-online-results.json', JSON.stringify(newData));
+        res.end();
+    })
+
+    .get('/city-defence', async (req, res) => {
+        const json = await readFile('./public/copy/city-defence-results.json', 'utf-8');
+        const data = JSON.parse(json);
+
+        const newData = data.map((a: any) => {
+            const obj = {
+                ...a,
+                points: a.score,
+            };
+            return (({ updatedAt, score, ...o }) => o)(obj);
+        });
+
+        await writeFile('./public/copy/new-city-defence-results.json', JSON.stringify(newData));
+        res.end();
+    })
+
     .get('/test', async (req, res) => {
         const json = await readFile('./public/copy/anime.json', 'utf-8');
         const data = JSON.parse(json);

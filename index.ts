@@ -12,7 +12,7 @@ import { dailyUpdate } from "./utils/dailyUpdate";
 
 import { errorRouter } from "./middlewares/error";
 
-import { achievementsRouter, animeOnTopRouter, animeRouter, homeRouter, newsRouter, swordArtOnlineResultsRouter, typesRouter, usersRouter, whatsTheMelodyRouter } from "./routers";
+import { achievementsRouter, animeOnTopRouter, animeRouter, homeRouter, newsRouter, cityDefenceRouter, swordArtOnlineRouter, typesRouter, usersRouter, whatsTheMelodyRouter } from "./routers";
 import { dbRebuildRouter } from "./routers/dbRebuild";
 import { projectsRouter } from "./routers/projects";
 
@@ -44,7 +44,8 @@ app.use('/achievements', achievementsRouter);
 app.use('/anime', animeRouter);
 app.use('/anime-on-top', animeOnTopRouter);
 app.use('/news', newsRouter);
-app.use('/sword-art-online-results', swordArtOnlineResultsRouter);
+app.use('/sword-art-online-clicker', swordArtOnlineRouter);
+app.use('/city-defence', cityDefenceRouter);
 app.use('/types', typesRouter);
 app.use('/users', usersRouter);
 app.use('/whats-the-melody', whatsTheMelodyRouter);

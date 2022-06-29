@@ -3,7 +3,8 @@ import { animeRouter } from "./anime";
 import { animeOnTopRouter } from "./animeOnTop";
 import { homeRouter } from "./home";
 import { newsRouter } from "./news";
-import { swordArtOnlineResultsRouter } from "./swordArtOnlineResults";
+import { swordArtOnlineRouter } from "./swordArtOnline";
+import { cityDefenceRouter } from "./cityDefenceRouter";
 import { typesRouter } from "./types";
 import { usersRouter } from "./users";
 import { whatsTheMelodyRouter } from "./whatsTheMelody";
@@ -14,8 +15,9 @@ export {
     animeRouter,
     homeRouter,
     newsRouter,
-    swordArtOnlineResultsRouter,
+    swordArtOnlineRouter,
     typesRouter,
     usersRouter,
     whatsTheMelodyRouter,
+    cityDefenceRouter,
 };
