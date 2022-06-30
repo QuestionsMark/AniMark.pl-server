@@ -6,21 +6,27 @@ const projectSchema = new Schema({
         required: true,
         trim: true,
     },
-    createdAt: {
-        type: Date,
-        default: () => Date.now(),
-        immutable: true,
-    },
     description: {
         type: String,
         required: true,
     },
-    imageSrc: {
+    imgSrc: {
         type: String,
         required: true,
     },
+    links: [{
+        src: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        note: {
+            type: String,
+            trim: true,
+        },
+    }],
     otherLinks: [{
-        link: {
+        src: {
             type: String,
             required: true,
             trim: true,
@@ -31,6 +37,11 @@ const projectSchema = new Schema({
         },
     }],
     technologies: [String],
+    createdAt: {
+        type: Date,
+        default: () => Date.now(),
+        immutable: true,
+    },
 }, {
     timestamps: true,
 })

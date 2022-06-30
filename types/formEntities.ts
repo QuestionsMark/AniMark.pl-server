@@ -2,7 +2,7 @@ import { AnimeCreatePreview, Kind } from "./anime";
 import { AudioPreview, ImagePreview } from "./common";
 import { Sort } from "./fetchAPI";
 
-export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS__EDIT" | "ANIME_CREATE" | "ANIME_EDIT";
+export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS__EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE";
 
 export interface OtherLink {
     src: string;
@@ -61,4 +61,14 @@ export interface AnimeCreateEntity {
     soundtracksPreview: AudioPreview[];
 }
 
-export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity;
+export interface ProjectCreateEntity {
+    name: string;
+    description: string;
+    technologies: string[];
+    images: File[] | null;
+    preview: ImagePreview[];
+    links: OtherLink[];
+    otherLinks: OtherLink[];
+}
+
+export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity;
