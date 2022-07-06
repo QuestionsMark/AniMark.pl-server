@@ -2,9 +2,8 @@ import { Router } from "express";
 import { ValidationError } from "../middlewares/error";
 import { imgUploadWithValidation, ValidationResponse } from "../middlewares/imgUploadWithValidation";
 import { PaginatedResponse, pagination } from "../middlewares/pagination";
-import { News } from "../models/news";
 import { NewsRecord } from "../records";
-import { NewsFormEntity } from "../types/formEntities";
+import { NewsEditEntity, NewsFormEntity } from "../types/formEntities";
 import { responseApiHelper, responseHelper } from "../utils/responseHelper";
 
 export const newsRouter = Router();
@@ -66,8 +65,11 @@ newsRouter
 
 
     // Edytowanie nowości
-    .patch('/:id', (req, res) => {
-        res.end();
+    .patch('/:id', imgUploadWithValidation('NEWS_EDIT'), async (req, res: ValidationResponse) => {
+        const { data, errors, uploadedImages } = res.validationResult;
+        if (errors.length > 0) throw new ValidationError('Niepoprawne dane!', errors);
+        await NewsRecord.edit(req.params.id, data as NewsEditEntity, uploadedImages);
+        res.status(201).json(responseHelper(`Artykuł został zaktualizowany.`));
     })
 
     // Likeowanie komentarza nowości

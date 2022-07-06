@@ -2,7 +2,7 @@ import { AnimeCreatePreview, Kind } from "./anime";
 import { AudioPreview, ImagePreview } from "./common";
 import { Sort } from "./fetchAPI";
 
-export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS__EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE";
+export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE";
 
 export interface OtherLink {
     src: string;
@@ -38,6 +38,17 @@ export interface NewsFormEntity {
     otherLinks: OtherLink[];
     choosedImages: string[];
     images: File[] | null;
+    preview: ImagePreview[];
+}
+
+export interface NewsEditEntity {
+    title: string;
+    description: string;
+    videos: string[];
+    otherLinks: OtherLink[];
+    choosedImages: string[];
+    images: File[] | null;
+    savedImages: string[];
     preview: ImagePreview[];
 }
 

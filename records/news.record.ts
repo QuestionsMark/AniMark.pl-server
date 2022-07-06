@@ -1,8 +1,10 @@
 import { decode } from "jsonwebtoken";
 import { Types } from "mongoose";
+import { ValidationError } from "../middlewares/error";
+import { Anime } from "../models/anime";
 import { News } from "../models/news";
-import { CommentPopulate, NewsAPI, NewsCondensedAPI, Token } from "../types";
-import { NewsFormEntity, OtherLink } from "../types/formEntities";
+import { AnimeAPI, CommentPopulate, NewsAPI, NewsCondensedAPI, Token } from "../types";
+import { NewsEditEntity, NewsFormEntity, OtherLink } from "../types/formEntities";
 import { deleteFiles } from "../utils/deleteImages";
 
 export class NewsRecord implements NewsAPI {
@@ -60,6 +62,11 @@ export class NewsRecord implements NewsAPI {
     }
 
     static async deleteImage(id: string, imageSrc: string): Promise<void> {
+        const anime = await Anime.find().select('images.mini') as AnimeAPI[];
+        const isChoosed = anime.findIndex(a => a.images.mini.src === imageSrc) !== -1;
+        if (!isChoosed) {
+            await deleteFiles([imageSrc]);
+        }
         await News.findByIdAndUpdate(id, { $pull: { images: imageSrc } });
     }
 
@@ -81,5 +88,13 @@ export class NewsRecord implements NewsAPI {
             await News.findByIdAndUpdate(id, { $push: { 'comments.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': commentId }] });
         }
         return 'Dodano lub usunięto like.';
+    }
+
+    static async edit(id: string, data: NewsEditEntity, uploaded: string[]): Promise<void> {
+        const { choosedImages, description, otherLinks, title, videos, savedImages } = data;
+        const news = await News.findById(id).select('createdAt').select('views').select('viewers').select('comments') as NewsAPI;
+        if (!news) throw new ValidationError('Nie znaleziono artykułu.');
+        const { createdAt, comments, viewers, views } = news;
+        await News.findOneAndReplace({ _id: id }, { description, title, images: [...uploaded, ...choosedImages, ...savedImages], videos, otherLinks, comments, viewers, views, createdAt });
     }
 }

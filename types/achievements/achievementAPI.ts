@@ -8,3 +8,8 @@ export interface AchievementAPI {
     icon: string;
     createdAt: Date;
 }
+
+export interface AchievementsGroup {
+    name: string;
+    items: AchievementAPI[];
+}

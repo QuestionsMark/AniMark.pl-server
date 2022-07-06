@@ -10,7 +10,7 @@ import { SwordArtOnlineResult } from "../models/swordArtOnlineResults";
 import { Type } from "../models/types";
 import { User } from "../models/users";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
-import { AnimeAPI, AnimeFilters, AnimePopulateAPI, CityDefenceSort, ComplexTypeAPI, Kind, NewsAPI, NewsCondensedAPI, SAOCSort, Sort, TypeAPI, UserAPI, UserPopulateAPI } from "../types";
+import { AchievementAPI, AchievementsGroup, AnimeAPI, AnimeFilters, AnimePopulateAPI, CityDefenceSort, ComplexTypeAPI, Kind, NewsAPI, NewsCondensedAPI, SAOCSort, Sort, TypeAPI, UserAPI, UserPopulateAPI } from "../types";
 
 export interface PaginatedResponse extends Response {
     results: any[];
@@ -29,7 +29,18 @@ export function pagination(collection: Collection) {
 
             switch (collection) {
                 case 'ACHIEVEMENTS': {
-                    res.results = await Achievement.find({ "x": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "x": 1 });
+                    const achievements = await Achievement.find({ "name": { $regex: searchPhrase } }).limit(limit).skip(startIndex).sort({ "name": 1 }) as AchievementAPI[];
+                    const groups = achievements.reduce((p, a) => {
+                        const groupIndex = p.findIndex(g => g.name === a.name);
+                        const isGroup = groupIndex !== -1;
+                        if (isGroup) {
+                            const newP = [...p];
+                            newP[groupIndex].items.push(a);
+                            return newP;
+                        }
+                        return [...p, { name: a.name, items: [a] }];
+                    }, [] as AchievementsGroup[]);
+                    res.results = groups;
                     res.amount = await Achievement.countDocuments().where({ "name": { $regex: searchPhrase } });
                     break;
                 }

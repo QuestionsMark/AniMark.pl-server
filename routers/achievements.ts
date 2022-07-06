@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { pagination } from "../middlewares/pagination";
+import { PaginatedResponse, pagination } from "../middlewares/pagination";
+import { responseApiHelper } from "../utils/responseHelper";
 
 export const achievementsRouter = Router();
 
 achievementsRouter
     // Pobieranie wszystkich osiągnięć
-    .get('/', pagination("ACHIEVEMENTS"), (req, res) => {
-        res.end();
+    .get('/', pagination("ACHIEVEMENTS"), (req, res: PaginatedResponse) => {
+        res.status(200).json(responseApiHelper(res.results, res.amount));
     })
 
 

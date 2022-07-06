@@ -3,11 +3,12 @@ import { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
 import { v4 as uuid } from 'uuid';
 import { ValidationError } from './error';
-import { AnimeCreateEntity, FormEntity, NewsFormEntity, ProjectCreateEntity, ValidationType } from '../types/formEntities';
+import { AnimeCreateEntity, FormEntity, NewsEditEntity, NewsFormEntity, ProjectCreateEntity, ValidationType } from '../types/formEntities';
 import { deleteFiles } from '../utils/deleteImages';
 import { newsCreateValidation } from '../validation/newsCreateValidation';
 import { animeCreateValidation } from '../validation/animeCreateValidation';
 import { projectCreateValidation } from '../validation/projectCreateValidation';
+import { newsEditValidation } from '../validation/newsEditValidation';
 
 export interface ValidationResult {
     errors: string[];
@@ -24,6 +25,9 @@ const checkValidation = (data: FormEntity, type: ValidationType): string[] => {
     switch (type) {
         case 'NEWS_CREATE':
             return newsCreateValidation(data as NewsFormEntity);
+        case 'NEWS_EDIT':
+            return newsEditValidation(data as NewsEditEntity);
+
         case 'ANIME_CREATE':
             return animeCreateValidation(data as AnimeCreateEntity);
         case 'PROJECT_CREATE':
