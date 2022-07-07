@@ -20,7 +20,7 @@ const animeSchema = new Schema({
             type: String,
             required: true,
         },
-        productionDate: {
+        productionYear: {
             type: Number,
             required: true,
         },

@@ -9,6 +9,8 @@ import { newsCreateValidation } from '../validation/newsCreateValidation';
 import { animeCreateValidation } from '../validation/animeCreateValidation';
 import { projectCreateValidation } from '../validation/projectCreateValidation';
 import { newsEditValidation } from '../validation/newsEditValidation';
+import { AudioPreview } from '../types';
+import { soundtracksAddValidation } from '../validation/soundtracksAddValidation';
 
 export interface ValidationResult {
     errors: string[];
@@ -19,6 +21,10 @@ export interface ValidationResult {
 
 export interface ValidationResponse extends Response {
     validationResult: ValidationResult;
+}
+
+export interface UploadResponse extends Response {
+    uploadedFiles: string[];
 }
 
 const checkValidation = (data: FormEntity, type: ValidationType): string[] => {
@@ -32,6 +38,9 @@ const checkValidation = (data: FormEntity, type: ValidationType): string[] => {
             return animeCreateValidation(data as AnimeCreateEntity);
         case 'PROJECT_CREATE':
             return projectCreateValidation(data as ProjectCreateEntity);
+
+        case 'SOUNDTRACKS_ADD':
+            return soundtracksAddValidation(data as AudioPreview[]);
     }
 }
 
@@ -101,7 +110,7 @@ export const imgUploadWithValidation = (type: ValidationType) => {
             }
             next();
         });
-    }
+    };
 };
 
 export const imgAndAudioUploadWithValidation = (type: ValidationType) => {
@@ -125,5 +134,18 @@ export const imgAndAudioUploadWithValidation = (type: ValidationType) => {
             }
             next();
         });
-    }
+    };
+};
+
+export const fileUpload = () => {
+    return (req: Request, res: UploadResponse, next: NextFunction) => {
+        filesUpload(req, res, async (err) => {
+            if (err) {
+                return next(err);
+            };
+            const files = req.files as Express.Multer.File[];
+            res.uploadedFiles = files.map(i => i.filename);
+            next();
+        });
+    };
 };

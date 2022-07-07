@@ -1,8 +1,8 @@
-import { AnimeCreatePreview, Kind } from "./anime";
-import { AudioPreview, ImagePreview } from "./common";
+import { AnimeCreatePreview, AnimeDescription, AnimeImagesObject, Kind } from "./anime";
+import { AudioPreview, ImagePreview, Soundtrack } from "./common";
 import { Sort } from "./fetchAPI";
 
-export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE";
+export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE" | "IMAGE_EDIT" | "SOUNDTRACKS_ADD";
 
 export interface OtherLink {
     src: string;
@@ -72,6 +72,29 @@ export interface AnimeCreateEntity {
     soundtracksPreview: AudioPreview[];
 }
 
+export interface AnimeEditEntity {
+    kind: Kind;
+    animeDescription: AnimeDescription;
+    title: string;
+    scenario: string;
+    productionYear: number | null;
+    epizodesCount: number | null;
+    epizodeDuration: number | null;
+    hours: number | null;
+    minutes: number | null;
+    watchLink: string;
+    types: string[];
+    seasons: string[];
+    mini: File | null;
+    background: File | null;
+    baner: File | null;
+    animeImagesPreview: AnimeCreatePreview;
+    soundtracks: File[] | null;
+    soundtracksPreview: AudioPreview[];
+    savedImages: AnimeImagesObject;
+    savedSoundtracks: Soundtrack[];
+}
+
 export interface ProjectCreateEntity {
     name: string;
     description: string;
@@ -82,4 +105,4 @@ export interface ProjectCreateEntity {
     otherLinks: OtherLink[];
 }
 
-export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity;
+export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity | ImagePreview | AudioPreview[];

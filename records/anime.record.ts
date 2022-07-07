@@ -2,11 +2,14 @@ import { NextFunction } from "express";
 import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
+import { News } from "../models/news";
 import { User } from "../models/users";
-import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI, AnimeImage, galeryAPI } from "../types";
-import { AnimeCreateEntity } from "../types/formEntities";
+import { WhatsTheMelody } from "../models/whatsTheMelody";
+import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI, AnimeImage, galeryAPI, NewsAPI, WhatsTheMelodyAPI, AudioPreview } from "../types";
+import { AnimeCreateEntity, AnimeEditEntity } from "../types/formEntities";
 import { deleteFiles } from "../utils/deleteImages";
 import { getDuration } from "../utils/getDuration";
+import { animeEditInformationsValidation } from "../validation/animeEditInformationsValidation";
 
 const changeFavoriteRate = async (animeId: string, userId: string, rate: number) => {
     await User.findByIdAndUpdate(userId, { 'favoriteAnime.$[anime].rate': rate }, { arrayFilters: [{ 'anime.anime': new Types.ObjectId(animeId) }] });
@@ -268,5 +271,71 @@ export class AnimeRecord implements AnimeAPI {
             images: anime.images.galeryImages,
             title: anime.title,
         };
+    }
+
+    static async backgroundEdit(id: string, src: string): Promise<string> {
+        const anime = await Anime.findById(id).select('images.background') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const actualSrc = anime.images.background.src;
+        const news = await News.find().select('images') as NewsAPI[];
+        const images = news.reduce((p, a) => [...p, ...a.images], [] as string[]);
+        const isUsed = images.findIndex(i => i === actualSrc) !== -1;
+        if (!isUsed) {
+            await deleteFiles([actualSrc]);
+        }
+        await Anime.findByIdAndUpdate(id, { 'images.background.src': src, 'images.galeryImages.$[element].src': src }, { arrayFilters: [{ 'element.src': actualSrc }] });
+        return 'Tło zostało zaktualizowane.';
+    }
+
+    static async banerEdit(id: string, src: string): Promise<string> {
+        const anime = await Anime.findById(id).select('images.baner') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const actualSrc = anime.images.baner.src;
+        const news = await News.find().select('images') as NewsAPI[];
+        const images = news.reduce((p, a) => [...p, ...a.images], [] as string[]);
+        const isUsed = images.findIndex(i => i === actualSrc) !== -1;
+        if (!isUsed) {
+            await deleteFiles([actualSrc]);
+        }
+        await Anime.findByIdAndUpdate(id, { 'images.baner.src': src, 'images.galeryImages.$[element].src': src }, { arrayFilters: [{ 'element.src': actualSrc }] });
+        return 'Baner został zaktualizowany.';
+    }
+
+    static async miniEdit(id: string, src: string): Promise<string> {
+        const anime = await Anime.findById(id).select('images.mini') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const actualSrc = anime.images.mini.src;
+        const news = await News.find().select('images') as NewsAPI[];
+        const images = news.reduce((p, a) => [...p, ...a.images], [] as string[]);
+        const isUsed = images.findIndex(i => i === actualSrc) !== -1;
+        if (!isUsed) {
+            await deleteFiles([actualSrc]);
+        }
+        await Anime.findByIdAndUpdate(id, { 'images.mini.src': src, 'images.galeryImages.$[element].src': src }, { arrayFilters: [{ 'element.src': actualSrc }] });
+        return 'Okładka została zaktualizowana.';
+    }
+
+    static async deleteSoundtrack(id: string, soundtrackId: string): Promise<string> {
+        const anime = await Anime.findById(id).select('soundtracks') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const soundtrack = anime.soundtracks.find(s => s.id === soundtrackId);
+        const wtm = await WhatsTheMelody.find().limit(1).sort({ createdAt: -1 }) as WhatsTheMelodyAPI[];
+        if (wtm[0].src === soundtrack.src) throw new ValidationError('Nie można usunąć ścieżki dźwiękowej, która jest obecnie w "Jaka to Melodia".');
+        if (anime.soundtracks.length < 2) throw new ValidationError('Anime musi posiadać conajmniej jeden soundtrack.');
+        await Anime.findByIdAndUpdate(id, { $pull: { soundtracks: { id: soundtrackId } } });
+        return 'Prawidłowo usunięto ścieżkę dźwiękową.';
+    }
+
+    static async addSoundtracks(id: string, uploadedFiles: string[], soundtracksPreview: AudioPreview[]): Promise<string> {
+        await Anime.findByIdAndUpdate(id, { $push: { soundtracks: uploadedFiles.map((f, i) => ({ src: f, title: soundtracksPreview[i].title, composer: soundtracksPreview[i].composer })) } });
+        return 'Dodano nowe ścieżki dźwiękowe.';
+    }
+
+    static async edit(id: string, data: AnimeEditEntity): Promise<string> {
+        const errors = animeEditInformationsValidation(data as AnimeEditEntity);
+        if (errors.length !== 0) throw new ValidationError('Nieprawidłowe dane.', errors);
+        const { epizodeDuration, epizodesCount, hours, kind, minutes, productionYear, scenario, seasons, title, types, watchLink } = data;
+        await Anime.findByIdAndUpdate(id, { $set: { info: { scenario, productionYear, duration: getDuration(kind, hours, minutes, epizodeDuration, epizodesCount) }, watchLink, kind, types, seasons, title } });
+        return 'Zaktualizowano informacje o anime.';
     }
 }

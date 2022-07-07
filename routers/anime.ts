@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { ValidationError } from "../middlewares/error";
-import { imgAndAudioUploadWithValidation, ValidationResponse } from "../middlewares/imgUploadWithValidation";
+import { fileUpload, imgAndAudioUploadWithValidation, UploadResponse, ValidationResponse } from "../middlewares/imgUploadWithValidation";
 import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { AnimeRecord } from "../records";
+import { AudioPreview } from "../types";
 import { AnimeCreateEntity } from "../types/formEntities";
 import { responseApiHelper, responseHelper } from "../utils/responseHelper";
 
@@ -86,6 +87,10 @@ animeRouter
         res.end();
     })
 
+    .patch('/:id', async (req, res) => {
+        res.status(200).json(responseHelper(await AnimeRecord.edit(req.params.id, req.body)));
+    })
+
 
     // Usuwanie komentarza nowości
     .delete('/:id/comments/:commentId', async (req, res) => {
@@ -94,9 +99,29 @@ animeRouter
     })
 
 
-    // Edytowanie anime
-    .patch('/:id', (req, res) => {
-        res.end();
+    // Dodawanie nowych soundtracków do anime
+    .post('/:id/soundtracks', imgAndAudioUploadWithValidation('SOUNDTRACKS_ADD'), async (req, res: ValidationResponse) => {
+        const { data, errors, uploadedFiles } = res.validationResult;
+        if (errors.length > 0) throw new ValidationError('Niepoprawne dane.', errors);
+        res.status(200).json(responseHelper(await AnimeRecord.addSoundtracks(req.params.id, uploadedFiles, data as AudioPreview[])));
+    })
+
+    // Edytowanie obecnych soundtracków anime
+    .put('/:id/soundtracks', fileUpload(), (req, res: UploadResponse) => {
+        res.status(200).json();
+    })
+
+    // Edytowanie tła anime
+    .put('/:id/background', fileUpload(), async (req, res: UploadResponse) => {
+        res.status(200).json(responseHelper(await AnimeRecord.backgroundEdit(req.params.id, res.uploadedFiles[0])));
+    })
+    // Edytowanie banera anime
+    .put('/:id/baner', fileUpload(), async (req, res: UploadResponse) => {
+        res.status(200).json(responseHelper(await AnimeRecord.banerEdit(req.params.id, res.uploadedFiles[0])));
+    })
+    // Edytowanie okładki anime
+    .put('/:id/mini', fileUpload(), async (req, res: UploadResponse) => {
+        res.status(200).json(responseHelper(await AnimeRecord.miniEdit(req.params.id, res.uploadedFiles[0])));
     })
 
 
@@ -117,4 +142,9 @@ animeRouter
     .put('/:id/comments/:commentId/like/:userId', async (req, res) => {
         const { commentId, id, userId } = req.params;
         res.status(200).json(responseHelper(await AnimeRecord.likeComment(id, commentId, userId)));
+    })
+
+    .delete('/:id/soundtracks/:soundtrackId', async (req, res) => {
+        const { id, soundtrackId } = req.params;
+        res.status(200).json(responseHelper(await AnimeRecord.deleteSoundtrack(id, soundtrackId)));
     })

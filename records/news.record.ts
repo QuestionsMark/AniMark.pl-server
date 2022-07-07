@@ -62,6 +62,9 @@ export class NewsRecord implements NewsAPI {
     }
 
     static async deleteImage(id: string, imageSrc: string): Promise<void> {
+        const news = await News.findById(id).select('images') as NewsAPI;
+        if (!news) throw new ValidationError('Nie znaleziono artykułu.');
+        if (news.images.length < 2) throw new ValidationError('Artykuł musi zawierać conajmniej jedną grafikę.');
         const anime = await Anime.find().select('images.mini') as AnimeAPI[];
         const isChoosed = anime.findIndex(a => a.images.mini.src === imageSrc) !== -1;
         if (!isChoosed) {

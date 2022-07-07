@@ -1,5 +1,3 @@
-import { UserAPI } from "../users";
-
 export interface Soundtrack {
     id: string;
     src: string;
