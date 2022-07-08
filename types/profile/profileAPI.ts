@@ -26,3 +26,8 @@ export interface ProfileAnimeAPI {
     anime: AnimeCondensedAPI;
     rate: number;
 }
+
+export interface PrivacyAPI {
+    email: string;
+    login: string;
+}

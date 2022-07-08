@@ -64,8 +64,14 @@ usersRouter
 
 
     // Pobieranie tła użytkownika
-    .get('/:id/anime-top', pagination('USER_ANIME_TOP'), async (req, res: PaginatedResponse) => {
+    .get('/:id/anime-top', pagination('USER_ANIME_TOP'), (req, res: PaginatedResponse) => {
         res.status(200).json(responseApiHelper(res.results, res.amount));
+    })
+
+
+    // Pobieranie prywatnych danych użytkownika
+    .get('/:id/privacy', async (req, res) => {
+        res.status(200).json(responseApiHelper(await UserRecord.getPrivacy(req.params.id)));
     })
 
 
@@ -85,6 +91,10 @@ usersRouter
     .put('/:userId/avatar', fileUpload(), async (req, res: UploadResponse) => {
         const files = res.uploadedFiles;
         res.status(200).json(responseHelper(await UserRecord.changeAvatar(req.params.userId, files[0])));
+    })
+
+    .put('/:userId/privacy', async (req, res) => {
+        res.status(200).json(responseHelper(await UserRecord.editPrivacy(req.params.userId, req.body)));
     })
 
     .put('/:userId/like/:like', async (req, res) => {

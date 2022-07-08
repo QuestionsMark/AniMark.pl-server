@@ -3,7 +3,7 @@ import { AudioPreview, ImagePreview, Soundtrack } from "./common";
 import { Sort } from "./fetchAPI";
 import { Introduction } from "./users";
 
-export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE" | "IMAGE_EDIT" | "PROFILE_IMAGES_ADD" | "SOUNDTRACKS_ADD" | "PROFILE_EDIT";
+export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE" | "IMAGE_EDIT" | "PROFILE_IMAGES_ADD" | "SOUNDTRACKS_ADD" | "PROFILE_EDIT" | "PROFILE_PRIVACY_EDIT";
 
 export interface OtherLink {
     src: string;
@@ -117,4 +117,12 @@ export interface ProfileEditEntity {
     preview: ImagePreview[];
 }
 
-export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity | ImagePreview | ImagePreview[] | AudioPreview[] | ProfileEditEntity | string[];
+export interface PrivacyEditEntity {
+    email: string;
+    login: string;
+    password: string;
+    passwordAgain: string;
+    passwordConfirm: string;
+}
+
+export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity | ImagePreview | ImagePreview[] | AudioPreview[] | ProfileEditEntity | string[] | PrivacyEditEntity;

@@ -3,10 +3,11 @@ import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
 import { User, UserModel } from "../models/users";
-import { AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserInfoAPI, UserPopulateAPI } from "../types";
-import { ProfileEditEntity } from "../types/formEntities";
+import { AnimeAPI, FavoriteAnime, Introduction, Points, PrivacyAPI, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserInfoAPI, UserPopulateAPI } from "../types";
+import { PrivacyEditEntity, ProfileEditEntity } from "../types/formEntities";
 import { deleteFiles } from "../utils/deleteImages";
 import { getTimeSpentWithAnime } from "../utils/getTimeSpentWithAnime";
+import { privacyEditValidation } from "../validation/privacyEditValidation";
 import { profileEditValidation } from "../validation/profileEditValidation";
 import { registartionValidation, RegistrationFormEntity } from "../validation/registraction";
 
@@ -372,5 +373,35 @@ export class UserRecord implements UserAPI {
         const { favoriteType, introduction, username } = state;
         await User.findByIdAndUpdate(id, { $set: { favoriteType, introduction, username } });
         return 'Zaktualizowano profil.';
+    }
+
+    static async getPrivacy(id: string): Promise<PrivacyAPI> {
+        const user = await User.findById(id).select('email').select('login') as UserAPI;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        const { email, login } = user;
+        return { email, login };
+    }
+
+    static async editPrivacy(id: string, state: PrivacyEditEntity): Promise<string> {
+        const user = await User.findById(id).select('password') as UserModel;
+
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        const { email, login, password, passwordConfirm } = state;
+
+        const matches = await user.passwordMatches(passwordConfirm);
+        if (!matches) throw new ValidationError('Podano nieprawidłowe hasło.');
+
+        const errors = privacyEditValidation(state);
+        if (errors.length !== 0) throw new ValidationError('Niepoprawne dane.', errors);
+
+        if (password) {
+            const salt = await genSalt(10);
+            const hash = await genHash(password, salt);
+            await User.findByIdAndUpdate(id, { $set: { email, login, password: hash } });
+        } else {
+            await User.findByIdAndUpdate(id, { $set: { email, login } });
+        }
+
+        return 'Zaktualizowano prywatne dane.';
     }
 }
