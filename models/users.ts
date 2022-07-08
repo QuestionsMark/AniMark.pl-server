@@ -10,9 +10,7 @@ export interface UserModel extends Document {
     username: string;
     avatar: string;
     background: string;
-    customBackgrounds: {
-        src: string;
-    }[];
+    customBackgrounds: string[];
     likes: string[];
     achievements: string[];
     points: Points;

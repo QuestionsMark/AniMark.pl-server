@@ -111,9 +111,7 @@ export interface UserAPI {
     username: string;
     avatar: string;
     background: string;
-    customBackgrounds: {
-        src: string;
-    }[];
+    customBackgrounds: string[];
     likes: string[];
     achievements: string[];
     points: Points;
@@ -134,9 +132,7 @@ export interface UserPopulateAPI {
     username: string;
     avatar: string;
     background: string;
-    customBackgrounds: {
-        src: string;
-    }[];
+    customBackgrounds: string[];
     likes: string[];
     achievements: AchievementAPI[];
     points: Points;

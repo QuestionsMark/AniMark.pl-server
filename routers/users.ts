@@ -2,6 +2,7 @@ import { Router } from "express";
 import { sign } from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config/config";
 import { ValidationError } from "../middlewares/error";
+import { fileUpload, UploadResponse } from "../middlewares/imgUploadWithValidation";
 import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { UserRecord } from "../records";
 import { AuthorizationAPI } from "../types";
@@ -46,9 +47,9 @@ usersRouter
     })
 
     // Pobieranie ulubionego gatunku użytkownika
-    .get('/:id/favorite-type', async (req, res) => {
+    .get('/:id/achievements', async (req, res) => {
         // res.status(200).json(responseApiHelper(await UserRecord.getAnimeData(req.params.id)));
-        res.end();
+        res.status(200).json(responseApiHelper(await UserRecord.getAchievements(req.params.id)));
     })
 
     // Pobieranie ulubionego gatunku użytkownika
@@ -81,6 +82,10 @@ usersRouter
         res.status(201).json(responseHelper(`Witaj ${user.username}! Twoje konto zostało pomyślnie zarejestrowane.`, { token } as AuthorizationAPI));
     })
 
+    .put('/:userId/avatar', fileUpload(), async (req, res: UploadResponse) => {
+        const files = res.uploadedFiles;
+        res.status(200).json(responseHelper(await UserRecord.changeAvatar(req.params.userId, files[0])));
+    })
 
     .put('/:userId/like/:like', async (req, res) => {
         const { userId, like } = req.params;
@@ -119,4 +124,22 @@ usersRouter
         const { userId, animeId } = req.params;
         await UserRecord.handleProcessOfWatching(userId, animeId);
         res.status(200).json(responseHelper('Anime zostało dodane do listy obecnie oglądanych.'));
+    })
+
+    .put('/:userId/background/:backgroundSrc', async (req, res) => {
+        const { userId, backgroundSrc } = req.params;
+        res.status(200).json(responseHelper(await UserRecord.changeBackground(userId, backgroundSrc)));
+    })
+
+    .delete('/:userId/background/:backgroundSrc', async (req, res) => {
+        const { userId, backgroundSrc } = req.params;
+        res.status(200).json(responseHelper(await UserRecord.deleteBackground(userId, backgroundSrc)));
+    })
+
+    .post('/:userId/background', fileUpload(), async (req, res: UploadResponse) => {
+        res.status(200).json(responseHelper(await UserRecord.addBackgrounds(req.params.userId, res.uploadedFiles)));
+    })
+
+    .patch('/:userId', async (req, res: UploadResponse) => {
+        res.status(200).json(responseHelper(await UserRecord.editProfile(req.params.userId, req.body)));
     })

@@ -4,7 +4,10 @@ import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
 import { User, UserModel } from "../models/users";
 import { AnimeAPI, FavoriteAnime, Introduction, Points, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserInfoAPI, UserPopulateAPI } from "../types";
+import { ProfileEditEntity } from "../types/formEntities";
+import { deleteFiles } from "../utils/deleteImages";
 import { getTimeSpentWithAnime } from "../utils/getTimeSpentWithAnime";
+import { profileEditValidation } from "../validation/profileEditValidation";
 import { registartionValidation, RegistrationFormEntity } from "../validation/registraction";
 
 const defaultPoints: Points = {
@@ -32,7 +35,7 @@ export class UserRecord implements UserAPI {
     username: string;
     avatar: string;
     background: string;
-    customBackgrounds: { src: string; }[];
+    customBackgrounds: string[];
     likes: string[];
     achievements: string[];
     points: Points;
@@ -60,10 +63,6 @@ export class UserRecord implements UserAPI {
         this.rank = obj.rank;
         this.userAnimeData = obj.userAnimeData;
         this.username = obj.username;
-    }
-
-    static async findAll() {
-
     }
 
     static async create(user: RegistrationFormEntity): Promise<UserRecord> {
@@ -254,7 +253,10 @@ export class UserRecord implements UserAPI {
         // setWatchedAnimePoints(userID);
     }
 
-    static async getProfile(userId: string): Promise<ProfileAPI | null> {
+
+
+
+    static async getProfile(userId: string): Promise<ProfileAPI> {
         const user: UserPopulateAPI = await User
             .findById(userId)
             .populate('favoriteType')
@@ -264,8 +266,8 @@ export class UserRecord implements UserAPI {
             .populate('userAnimeData.stopped', ['title', 'images'])
             .populate('userAnimeData.planned', ['title', 'images'])
             .populate('userAnimeData.watched.anime', ['title', 'images']);
-        if (!user) return null;
-        const { _id, achievements, avatar, background, createdAt, favoriteAnime, favoriteType, introduction, likes, points, rank, sumOfPoints, userAnimeData, username } = user;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        const { _id, achievements, avatar, background, createdAt, favoriteAnime, favoriteType, introduction, likes, points, rank, sumOfPoints, userAnimeData, username, customBackgrounds } = user;
         const { planned, processOfWatching, stopped, watched } = userAnimeData;
         return {
             _id,
@@ -294,6 +296,7 @@ export class UserRecord implements UserAPI {
                 watched: watched.map(a => ({ anime: { _id: a.anime._id, image: a.anime.images.mini, title: a.anime.title }, rate: a.rate })),
             },
             username,
+            customBackgrounds,
             timeSpentWithAnime: await getTimeSpentWithAnime(userId),
         };
     }
@@ -320,5 +323,54 @@ export class UserRecord implements UserAPI {
         const user = await User.findById(userId).select('avatar').select('username') as UserInfoAPI;
         if (!user) throw new ValidationError('Nie znaleziono uzytkownika.');
         return user;
+    }
+
+    static async getAchievements(id: string): Promise<string[]> {
+        const user = await User.findById(id).select('achievements') as UserAPI;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        return user.achievements;
+    }
+
+    static async changeAvatar(id: string, src: string): Promise<string> {
+        const user = await User.findById(id).select('avatar') as UserAPI;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        if (user.avatar !== 'guest.png') {
+            await deleteFiles([user.avatar]);
+        }
+        await User.findByIdAndUpdate(id, { avatar: src });
+        return 'Avatar został zmieniony.';
+    }
+
+    static async changeBackground(id: string, src: string): Promise<string> {
+        await User.findByIdAndUpdate(id, { background: src });
+        return 'Tło zostało zmienione.';
+    }
+
+    static async addBackgrounds(id: string, files: string[]): Promise<string> {
+        const user = await User.findById(id).select('customBackgrounds') as UserAPI;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        if (user.customBackgrounds.length + files.length > 5) {
+            await deleteFiles(files);
+            throw new ValidationError('Można posiadać maksymalnie 5 teł.');
+        }
+        await User.findByIdAndUpdate(id, { $push: { customBackgrounds: files } });
+        return 'Tła zostały dodane.';
+    }
+
+    static async deleteBackground(id: string, backgroundSrc: string): Promise<string> {
+        const user = await User.findById(id).select('customBackgrounds') as UserAPI;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
+        if (!(user.customBackgrounds.includes(backgroundSrc))) throw new ValidationError('Nie znaleziono tła do usunięcia.');
+        await User.findByIdAndUpdate(id, { $pull: { customBackgrounds: backgroundSrc } });
+        await deleteFiles([backgroundSrc]);
+        return 'Tło zostało usunięte.';
+    }
+
+    static async editProfile(id: string, state: ProfileEditEntity): Promise<string> {
+        const errors = profileEditValidation(state);
+        if (errors.length !== 0) throw new ValidationError('Nieprawidłowe dane.', errors);
+        const { favoriteType, introduction, username } = state;
+        await User.findByIdAndUpdate(id, { $set: { favoriteType, introduction, username } });
+        return 'Zaktualizowano profil.';
     }
 }

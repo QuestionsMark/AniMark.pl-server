@@ -18,6 +18,7 @@ export interface ProfileAPI {
     introduction: Introduction;
     userAnimeData: UserAnimeDataCondensedAPI;
     favoriteAnime: FavoriteAnimeCondensed[];
+    customBackgrounds: string[];
     timeSpentWithAnime: number;
 }
 

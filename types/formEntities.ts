@@ -1,8 +1,9 @@
 import { AnimeCreatePreview, AnimeDescription, AnimeImagesObject, Kind } from "./anime";
 import { AudioPreview, ImagePreview, Soundtrack } from "./common";
 import { Sort } from "./fetchAPI";
+import { Introduction } from "./users";
 
-export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE" | "IMAGE_EDIT" | "SOUNDTRACKS_ADD";
+export type ValidationType = "LOGIN" | "REGISTRATION" | "NEWS_CREATE" | "NEWS_EDIT" | "ANIME_CREATE" | "ANIME_EDIT" | "PROJECT_CREATE" | "IMAGE_EDIT" | "PROFILE_IMAGES_ADD" | "SOUNDTRACKS_ADD" | "PROFILE_EDIT";
 
 export interface OtherLink {
     src: string;
@@ -105,4 +106,15 @@ export interface ProjectCreateEntity {
     otherLinks: OtherLink[];
 }
 
-export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity | ImagePreview | AudioPreview[];
+export interface ProfileEditEntity {
+    avatar: File | null;
+    avatarPreview: ImagePreview;
+    profileBackground: string;
+    favoriteType: string;
+    username: string;
+    introduction: Introduction;
+    images: File[] | null;
+    preview: ImagePreview[];
+}
+
+export type FormEntity = LoginFormEntity | RegistrationFormEntity | NewsFormEntity | AnimeCreateEntity | ProjectCreateEntity | ImagePreview | ImagePreview[] | AudioPreview[] | ProfileEditEntity | string[];

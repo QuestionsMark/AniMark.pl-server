@@ -329,17 +329,14 @@ dbRebuildRouter
     })
 
     .get('/test', async (req, res) => {
-        const json = await readFile('./public/copy/anime.json', 'utf-8');
+        const json = await readFile('./public/copy/users.json', 'utf-8');
         const data = JSON.parse(json);
 
         const newData = data.map((a: any) => ({
             ...a,
-            description: {
-                ...a.description,
-                author: a.description.author || { '$oid': '62ac254dcd191734242d3e5f' }
-            },
+            customBackgrounds: a.customBackgrounds.map((b: any) => `${b}.png`),
         }));
 
-        await writeFile('./public/copy/new-anime.json', JSON.stringify(newData));
+        await writeFile('./public/copy/new-users.json', JSON.stringify(newData));
         res.end();
     })

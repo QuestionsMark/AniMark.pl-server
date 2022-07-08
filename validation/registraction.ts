@@ -34,8 +34,8 @@ export const registartionValidation = (form: RegistrationFormEntity) => {
         errors.push('Aby załozyć konto musisz zaakceptować regulamin platformy.');
     }
 
-    if (!username || typeof username !== 'string' || username.length > 50) {
-        errors.push('Nick może zawierać maksymalnie 50 znaków.');
+    if (!username || typeof username !== 'string' || username.length > 25) {
+        errors.push('Nick może zawierać maksymalnie 25 znaków.');
     }
 
     return errors;
