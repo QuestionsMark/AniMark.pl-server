@@ -92,7 +92,7 @@ animeRouter
     })
 
 
-    // Usuwanie komentarza nowości
+    // Usuwanie komentarza anime
     .delete('/:id/comments/:commentId', async (req, res) => {
         const { commentId, id } = req.params;
         res.status(200).json(responseHelper(await AnimeRecord.deleteComment(id, commentId)));
@@ -138,12 +138,13 @@ animeRouter
         res.status(200).json(responseHelper(await AnimeRecord.soundtrackLike(id, soundtrackId, userId)));
     })
 
-    // Likeowanie komentarza nowości
+    // Likeowanie komentarza anime
     .put('/:id/comments/:commentId/like/:userId', async (req, res) => {
         const { commentId, id, userId } = req.params;
         res.status(200).json(responseHelper(await AnimeRecord.likeComment(id, commentId, userId)));
     })
 
+    // Usuwanie soundtracka anime
     .delete('/:id/soundtracks/:soundtrackId', async (req, res) => {
         const { id, soundtrackId } = req.params;
         res.status(200).json(responseHelper(await AnimeRecord.deleteSoundtrack(id, soundtrackId)));

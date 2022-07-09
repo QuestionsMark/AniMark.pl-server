@@ -87,7 +87,7 @@ export class AnimeRecord implements AnimeAPI {
                 watchLink: watchLink.trim(),
                 info: {
                     scenario,
-                    productionDate: productionYear,
+                    productionYear,
                     duration: getDuration(kind, hours, minutes, epizodeDuration, epizodesCount),
                 },
                 types,
@@ -319,10 +319,13 @@ export class AnimeRecord implements AnimeAPI {
         const anime = await Anime.findById(id).select('soundtracks') as AnimeAPI;
         if (!anime) throw new ValidationError('Nie znaleziono anime.');
         const soundtrack = anime.soundtracks.find(s => s.id === soundtrackId);
-        const wtm = await WhatsTheMelody.find().limit(1).sort({ createdAt: -1 }) as WhatsTheMelodyAPI[];
-        if (wtm[0].src === soundtrack.src) throw new ValidationError('Nie można usunąć ścieżki dźwiękowej, która jest obecnie w "Jaka to Melodia".');
+        const wtms = await WhatsTheMelody.find().sort({ createdAt: -1 }) as WhatsTheMelodyAPI[];
+        if (wtms[0].src === soundtrack.src) throw new ValidationError('Nie można usunąć ścieżki dźwiękowej, która jest obecnie w "Jaka to Melodia".');
         if (anime.soundtracks.length < 2) throw new ValidationError('Anime musi posiadać conajmniej jeden soundtrack.');
         await Anime.findByIdAndUpdate(id, { $pull: { soundtracks: { id: soundtrackId } } });
+        if (wtms.findIndex(w => w.src === soundtrack.src) === -1) {
+            await deleteFiles([soundtrack.src]);
+        }
         return 'Prawidłowo usunięto ścieżkę dźwiękową.';
     }
 

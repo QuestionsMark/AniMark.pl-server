@@ -15,6 +15,7 @@ import { errorRouter } from "./middlewares/error";
 import { achievementsRouter, animeOnTopRouter, animeRouter, homeRouter, newsRouter, cityDefenceRouter, swordArtOnlineRouter, typesRouter, usersRouter, whatsTheMelodyRouter } from "./routers";
 import { dbRebuildRouter } from "./routers/dbRebuild";
 import { projectsRouter } from "./routers/projects";
+import { requestAuthorization } from "./middlewares/requestAuthorization";
 
 
 // App Config
@@ -38,6 +39,7 @@ app.use(express.static('./public'));
 app.use(cors({
     origin: CORS_ORIGIN,
 }));
+app.use(requestAuthorization());
 
 app.use('/', homeRouter);
 app.use('/achievements', achievementsRouter);
@@ -70,4 +72,4 @@ server.listen(port, () => console.log(`Server is listening on http://localhost:$
 
 // Daily update
 
-// dailyUpdate();
+dailyUpdate();

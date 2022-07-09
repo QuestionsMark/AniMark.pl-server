@@ -371,7 +371,7 @@ export class UserRecord implements UserAPI {
         const errors = profileEditValidation(state);
         if (errors.length !== 0) throw new ValidationError('Nieprawidłowe dane.', errors);
         const { favoriteType, introduction, username } = state;
-        await User.findByIdAndUpdate(id, { $set: { favoriteType, introduction, username } });
+        await User.findByIdAndUpdate(id, { $set: { favoriteType: favoriteType || null, introduction, username } });
         return 'Zaktualizowano profil.';
     }
 

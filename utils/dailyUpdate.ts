@@ -1,39 +1,29 @@
-import fetch from 'node-fetch';
-import { HOST_ADDRESS } from '../config/config';
+import { io } from '..';
+import { AnimeOnTopRecord, WhatsTheMelodyRecord } from '../records';
 import { setAccountTimePoints } from './pointsManager';
 
 export const dailyUpdate = () => {
-    setInterval(() => {
-        const date = new Date();
-        fetch(`${HOST_ADDRESS}`)
-            .then(res => res.text())
-            .then(res => console.log(`Serwer status: ${res ? 'OK!' : 'ERR!'}, Serwer response: ${res}, Date: ${date.toLocaleTimeString()} ${date.toLocaleDateString()}`))
-    }, 300000);
+    // setInterval(async () => {
+    //     const date = new Date();
+    //     const response = await fetch(`${HOST_ADDRESS}`);
+    //     if (!response.ok) return console.log('Serwer status: ERR!');
+    //     const result = await response.json();
+    //     console.log(`Serwer status: ${result.status}, Serwer response: ${result.message}, Date: ${date.toLocaleTimeString()} ${date.toLocaleDateString()}`);
+    // }, 300000);
 
     setInterval(async () => {
         const date = new Date();
+
         if (date.getHours() === 22 && date.getMinutes() === 0) {
-            await fetch(`${HOST_ADDRESS}/daily-anime`, {
-                headers: {
-                    'priority': 'true'
-                },
-                method: 'POST'
-            });
-            await fetch(`${HOST_ADDRESS}/whats-the-melody`, {
-                headers: {
-                    'priority': 'true'
-                },
-                method: 'POST'
-            });
+            // reset "Jaka to Melodia"
+            await WhatsTheMelodyRecord.setNew();
+            io.emit('whats-the-melody__new');
+
             if (date.toDateString()[0].toLowerCase() === 's' && date.toDateString()[2].toLowerCase() === 'n') {
-                await fetch(`${HOST_ADDRESS}/anime-on-top`, {
-                    headers: {
-                        'priority': 'true'
-                    },
-                    method: 'POST'
-                });
+                // reset "AOT"
+                await AnimeOnTopRecord.setNew();
             }
-            setAccountTimePoints();
+            // setAccountTimePoints();
         }
     }, 60000);
 }

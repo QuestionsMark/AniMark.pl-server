@@ -19,6 +19,8 @@ export class SocketError extends Error {
     }
 }
 
+export class AuthorizationError extends Error { }
+
 export interface MongooseError {
     message: string;
     code: number;
@@ -53,6 +55,10 @@ export const errorRouter = (err: Error | MongooseError, req: Request, res: Respo
 
     if (err instanceof ValidationError) {
         return res.status(400).json({ message: err.message, validation: err.errors });
+    }
+
+    if (err instanceof AuthorizationError) {
+        return res.status(403).json({ message: err.message });
     }
     res.status(500).json({ message: 'Przepraszamy, spróbuj ponownie później.' });
 }
