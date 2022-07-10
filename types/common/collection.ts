@@ -1,0 +1,1 @@
+export type Collection = 'WHATS_THE_MELODY' | 'ANIME' | 'NEWS';

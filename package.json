@@ -1,0 +1,41 @@
+{
+  "name": "animark-server",
+  "version": "0.1.0",
+  "description": "API for AniMark.pl",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsnd index.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "Question Mark",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "date-fns": "^2.28.0",
+    "express": "^4.18.1",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.3.4",
+    "multer": "^1.4.4",
+    "node-fetch": "^2.0.0",
+    "socket.io": "^4.5.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/mongodb": "^4.0.7",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^17.0.36",
+    "@types/node-fetch": "^2.6.1",
+    "@types/uuid": "^8.3.4",
+    "ts-node": "^10.8.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.7.2"
+  }
+}
