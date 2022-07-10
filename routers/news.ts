@@ -23,7 +23,7 @@ newsRouter
 
     // Pobieranie konkretnej nowości
     .get('/:id', async (req, res) => {
-        res.status(200).json(responseApiHelper(await NewsRecord.getOne(req.params.id)));
+        res.status(200).json(responseApiHelper(await NewsRecord.getOne(req.params.id, req.headers.token as string)));
     })
 
 

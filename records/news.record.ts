@@ -50,9 +50,17 @@ export class NewsRecord implements NewsAPI {
         News.findByIdAndUpdate(id, { $push: { viewers: new Types.ObjectId(userId) } });
     }
 
-    static async getOne(id: string): Promise<NewsAPI | null> {
-        const news = await News.findById(id).populate('comments.user', ['avatar', 'username']);
+    static async getOne(id: string, token: string): Promise<NewsAPI | null> {
+        const news = await News.findById(id).populate('comments.user', ['avatar', 'username']) as NewsAPI;
         if (!news) return null;
+        const decoded = decode(token) as Token;
+        if (decoded) {
+            if (news.viewers.findIndex(v => v.toString() === decoded.userId) === -1) {
+                await News.findByIdAndUpdate(id, { $push: { viewers: new Types.ObjectId(decoded.userId) } });
+            }
+        }
+        await News.findByIdAndUpdate(id, { $inc: { views: 1 } });
+
         return news;
     }
 

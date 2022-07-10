@@ -147,7 +147,7 @@ export interface UserPopulateAPI {
 export interface RecommendedProfileAPI {
     _id: string;
     username: string;
-    points: Points;
+    sumOfPoints: number;
     likes: string[];
     avatar: string;
     background: string;
@@ -177,9 +177,4 @@ export interface UserInfoAPI {
     _id: string;
     username: string;
     avatar: string;
-}
-
-export interface UserAchievementsAPI {
-    _id: string;
-    achievements: AchievementAPI[];
 }

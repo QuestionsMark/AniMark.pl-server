@@ -93,24 +93,24 @@ export class UserRecord implements UserAPI {
     }
 
     static async getRecommended(): Promise<RecommendedProfileAPI[]> {
-        const users = await User.aggregate([
-            {
-                $project: { length: { $size: "$likes" } }
-            },
-            {
-                $sort: { "length": -1 }
-            },
-            {
-                $limit: 6
-            }
-        ]);
-        const sorted: RecommendedProfileAPI[] = [];
-        for (const { _id } of users) {
-            const user = await User.findById(_id);
-            const { avatar, background, likes, points, username } = user;
-            sorted.push({ _id, avatar, background, likes, points, username });
-        }
-        return sorted;
+        // const users = await User.aggregate([
+        //     {
+        //         $project: { length: { $size: "$likes" } }
+        //     },
+        //     {
+        //         $sort: { "length": -1 }
+        //     },
+        //     {
+        //         $limit: 6
+        //     }
+        // ]);
+        // const sorted: RecommendedProfileAPI[] = [];
+        // for (const { _id } of users) {
+        //     const user = await User.findById(_id);
+        //     const { avatar, background, likes, points, username } = user;
+        //     sorted.push({ _id, avatar, background, likes, points, username });
+        // }
+        return User.find().limit(6).sort({ sumOfPoints: -1, likes: -1 }).select('avatar').select('background').select('likes').select('sumOfPoints').select('username');
     }
     static async getOnline(): Promise<OnlineUserCondensedAPI[]> {
         const onlineUsers = await OnlineUser.find().select('username').select('avatar').select('link') as OnlineUserAPI[];

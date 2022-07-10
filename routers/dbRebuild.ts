@@ -19,7 +19,7 @@ dbRebuildRouter
             const backgroundResponse = await fetch(`http://localhost:3001/db-rebuild/background/${background}`);
             const backgroundObj: any = await backgroundResponse.json();
 
-            const typeResponse = await fetch(`http://localhost:3001/db-rebuild/favorite-type/${favoriteType}`);
+            const typeResponse = await fetch(`http://localhost:3001/db-rebuild/favorite-type/${favoriteType || 'Brak'}`);
             const typeObj: any = await typeResponse.json();
 
             newUsers.push({
@@ -28,7 +28,7 @@ dbRebuildRouter
                 avatar: `${avatarObj.name}.png`,
                 background: `${backgroundObj.name}.png`,
                 createdAt,
-                customBackgrounds: customBackgrounds.map(b => (b as any).img),
+                customBackgrounds: customBackgrounds.map(b => `${(b as any).img}.png`),
                 email,
                 favoriteAnime: favoriteAnime.map(a => ({
                     anime: { '$oid': (a as any).id },
@@ -49,7 +49,8 @@ dbRebuildRouter
                     profileLikes: (points as any).profilesLikes,
                     soundtrackLikes: (points as any).soundtracksLikes,
                 },
-                rank: Number(rank),
+                sumOfPoints: Object.entries(points).reduce((p, a: [string, number]) => p + a[1], 0),
+                rank: Number(rank) - 1,
                 userAnimeData: {
                     planned: userAnimeData.planned.map(p => ({ '$oid': (p as any).id })),
                     processOfWatching: userAnimeData.processOfWatching.map(p => ({ '$oid': (p as any).id })),
@@ -63,11 +64,7 @@ dbRebuildRouter
             });
         }
 
-        console.log(newUsers.length);
-
-
         await writeFile('./public/copy/new-users.json', JSON.stringify(newUsers));
-
         res.end();
     })
 
@@ -95,7 +92,7 @@ dbRebuildRouter
 
                 const imageResponse = await fetch(`http://localhost:3001/db-rebuild/avatar/${id}`);
                 const avatarObj: any = await imageResponse.json();
-                newImages.push({ _id, src: avatarObj.name });
+                newImages.push(`${avatarObj.name}.png`);
             }
 
             newNews.push({
@@ -112,6 +109,7 @@ dbRebuildRouter
                     createdAt: c.date,
                     text: c.text,
                     likes: c.likes.map((l: any) => ({ '$oid': l })),
+                    id: uuid(),
                 })),
                 createdAt,
             });
@@ -247,6 +245,7 @@ dbRebuildRouter
                     createdAt: c.date,
                     text: c.text,
                     likes: c.likes.map((l: any) => ({ '$oid': l })),
+                    id: uuid(),
                 })),
                 kind,
                 title,
@@ -287,10 +286,22 @@ dbRebuildRouter
     })
 
     .get('/images', async (req, res) => {
+        const json = await readFile('./public/copy/images.json', 'utf-8');
+        const data = JSON.parse(json);
+        for (const image of data) {
+            const binaryData = Buffer.from(image.buffer['$binary'].base64, 'base64').toString('binary');
+            await writeFile(`./public/media/${image.name}.png`, binaryData, 'binary');
+        }
         res.end();
     })
 
     .get('/audio', async (req, res) => {
+        const json = await readFile('./public/copy/soundtracks.json', 'utf-8');
+        const data = JSON.parse(json);
+        for (const soundtrack of data) {
+            const binaryData = Buffer.from(soundtrack.buffer['$binary'].base64, 'base64').toString('binary');
+            await writeFile(`./public/media/${soundtrack.name}.mp3`, binaryData, 'binary');
+        }
         res.end();
     })
 
@@ -329,14 +340,14 @@ dbRebuildRouter
     })
 
     .get('/test', async (req, res) => {
-        const json = await readFile('./public/copy/users.json', 'utf-8');
+        const json = await readFile('./public/copy/new-wtms.json', 'utf-8');
         const data = JSON.parse(json);
 
         const newData = data.map((a: any) => ({
             ...a,
-            customBackgrounds: a.customBackgrounds.map((b: any) => `${b}.png`),
+            comments: a.comments.map((c: any) => ({ ...c, id: uuid() })),
         }));
 
-        await writeFile('./public/copy/new-users.json', JSON.stringify(newData));
+        await writeFile('./public/copy/new-wtms.json', JSON.stringify(newData));
         res.end();
     })
