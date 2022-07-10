@@ -1,5 +1,5 @@
 import { io } from "../index";
-import { WhatsTheMelodyRecord } from "../records";
+import { OnlineUserRecord, WhatsTheMelodyRecord } from "../records";
 import { NewComment, NewVote, UpdateComment } from "../types";
 import { checkSocketAuthorization } from "./checkSocketAuthorization";
 import { socketResponseErrorHelper } from "./responseHelper";
@@ -8,22 +8,16 @@ import { socketErrorHandler } from "./socketError";
 export const socketManager = async () => {
     io.on('connection', socket => {
         socket.broadcast.emit('user-connected', `Użytkownik ${socket.id} dołączył!`);
-        socket.on('disconnect', () => {
-            // onlineUsers.splice(onlineUsers.findIndex(u => u.socketId === socket.id), 1);
-            // socket.broadcast.emit('online-users-changed');
+        socket.on('disconnect', async () => {
+            await OnlineUserRecord.delete(socket.id);
+            io.emit('online-users__refresh');
         });
-        socket.on('set-user', async ({ userId }) => {
-            // const response = await fetch(`${HOST_ADDRESS}/users/${userId}/comment-info`);
-            // if (response.ok) {
-            //     const { username, avatar } = await response.json();
-            //     onlineUsers.push({ id: userId, socketId: socket.id, username, avatar });
-            // } else {
-            //     onlineUsers.push({ id: userId, socketId: socket.id, username: 'Guest', avatar: null });
-            // }
-            // io.emit('online-users-changed');
+        socket.on('online-users__new', async ({ userId }) => {
+            await OnlineUserRecord.set(socket.id, userId);
+            io.emit('online-users__refresh');
         });
 
-        socket.on('get-online-users', () => {
+        socket.on('online-users__get', () => {
             // socket.emit('get-online-users', {
             //     onlineUsers,
             // });

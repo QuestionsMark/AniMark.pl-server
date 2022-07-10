@@ -23,7 +23,7 @@ export const dailyUpdate = () => {
                 // reset "AOT"
                 await AnimeOnTopRecord.setNew();
             }
-            // setAccountTimePoints();
+            setAccountTimePoints();
         }
     }, 60000);
 }

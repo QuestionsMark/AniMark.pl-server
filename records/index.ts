@@ -6,6 +6,7 @@ import { SwordArtOnlineResultRecord } from "./swordArdOnlineResult.record";
 import { TypeRecord } from "./type.record";
 import { UserRecord } from "./user.record";
 import { WhatsTheMelodyRecord } from "./whatsTheMelody.record";
+import { OnlineUserRecord } from "./onlineUser.record";
 
 
 export {
@@ -17,4 +18,5 @@ export {
     TypeRecord,
     UserRecord,
     WhatsTheMelodyRecord,
+    OnlineUserRecord,
 };

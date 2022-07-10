@@ -16,6 +16,7 @@ import { achievementsRouter, animeOnTopRouter, animeRouter, homeRouter, newsRout
 import { dbRebuildRouter } from "./routers/dbRebuild";
 import { projectsRouter } from "./routers/projects";
 import { requestAuthorization } from "./middlewares/requestAuthorization";
+import { OnlineUserRecord } from "./records";
 
 
 // App Config
@@ -60,7 +61,9 @@ app.use(errorRouter);
 
 // DB config
 
-connect(DB_CONNECTION);
+connect(DB_CONNECTION, async () => {
+    await OnlineUserRecord.deleteAll();
+});
 
 // Socket.io events
 

@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { sign } from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config/config";
-import { ValidationError } from "../middlewares/error";
 import { fileUpload, UploadResponse } from "../middlewares/imgUploadWithValidation";
 import { PaginatedResponse, pagination } from "../middlewares/pagination";
 import { UserRecord } from "../records";
@@ -21,6 +20,11 @@ usersRouter
     // Pobieranie rekomendowanych użytkowników
     .get('/recommended', async (req, res) => {
         res.status(200).json(responseApiHelper(await UserRecord.getRecommended()));
+    })
+
+    // Pobieranie dostępnych online użytkowników
+    .get('/online', async (req, res) => {
+        res.status(200).json(responseApiHelper(await UserRecord.getOnline()));
     })
 
 
@@ -99,9 +103,7 @@ usersRouter
 
     .put('/:userId/like/:like', async (req, res) => {
         const { userId, like } = req.params;
-        const status = await UserRecord.likeProfile(userId, like);
-        if (!status) throw new ValidationError('Nie znaleziono użytkownika.');
-        res.status(200).json(responseHelper('Pomyślnie polubiono lub usunięto polubienie profilu.'));
+        res.status(200).json(responseHelper(await UserRecord.likeProfile(userId, like)));
     })
 
 

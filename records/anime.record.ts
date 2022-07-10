@@ -7,8 +7,10 @@ import { User } from "../models/users";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
 import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI, AnimeImage, galeryAPI, NewsAPI, WhatsTheMelodyAPI, AudioPreview } from "../types";
 import { AnimeCreateEntity, AnimeEditEntity } from "../types/formEntities";
+import { setHaterAchievement, setLoverAchievement } from "../utils/achievementsManager";
 import { deleteFiles } from "../utils/deleteImages";
 import { getDuration } from "../utils/getDuration";
+import { setCommentsPoints, setSoundtracksPoints } from "../utils/pointsManager";
 import { animeEditInformationsValidation } from "../validation/animeEditInformationsValidation";
 
 const changeFavoriteRate = async (animeId: string, userId: string, rate: number) => {
@@ -225,8 +227,8 @@ export class AnimeRecord implements AnimeAPI {
         }
         const newAnime = await Anime.findById(id).select('rate') as AnimeAPI;
         await Anime.findByIdAndUpdate(id, { averageRate: newAnime.rate.length > 0 ? (newAnime.rate.reduce((p, a) => p + a.rate, 0) / newAnime.rate.length) : 0 });
-        // setLoverAchievement(userID);
-        // setHaterAchievement(userID);
+        setLoverAchievement(userId);
+        setHaterAchievement(userId);
         return 'Zmieniono ocenę anime.';
     }
 
@@ -239,16 +241,23 @@ export class AnimeRecord implements AnimeAPI {
         } else {
             await Anime.findByIdAndUpdate(id, { $push: { 'soundtracks.$[element].likes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.id': soundtrackId }] });
         }
+        setSoundtracksPoints(userId);
         return 'Zmieniono like w soundtracku.'
     }
 
     static async newComment(id: string, userId: string, text: string): Promise<string> {
         await Anime.findByIdAndUpdate(id, { $push: { comments: { user: new Types.ObjectId(userId), text } } });
+        setCommentsPoints(userId);
         return 'Dodano nowy komentarz.'
     }
 
     static async deleteComment(id: string, commentId: string): Promise<string> {
+        const anime = await Anime.findById(id).select('comments') as AnimeAPI;
+        if (!anime) throw new ValidationError('Nie znaleziono anime.');
+        const comment = anime.comments.find(c => c.id === commentId);
+        if (!comment) throw new ValidationError('Nie znaleziono komentarza.');
         await Anime.findByIdAndUpdate(id, { $pull: { comments: { id: commentId } } });
+        setCommentsPoints(comment.user.toString());
         return 'Komentarz został usunięty.';
     }
 

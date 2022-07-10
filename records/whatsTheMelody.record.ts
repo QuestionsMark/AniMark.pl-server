@@ -2,6 +2,8 @@ import { Types } from "mongoose";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
 import { Comment, CommentPopulate, WhatsTheMelodyAPI, WhatsTheMelodyCandidateAPI, WhatsTheMelodyCondensedAPI, WhatsTheMelodyQuestion, WhatsTheMelodyResults, WTMVotes } from "../types";
 import { Anime } from "../models/anime";
+import { setWTMPoints } from "../utils/pointsManager";
+import { setParzydlakAchievement } from "../utils/achievementsManager";
 
 export class WhatsTheMelodyRecord implements WhatsTheMelodyAPI {
     _id: string;
@@ -88,15 +90,14 @@ export class WhatsTheMelodyRecord implements WhatsTheMelodyAPI {
     };
 
     static async addNewVote(userId: string, wtmId: string, vote: string): Promise<boolean> {
-        // Sprawdzenie czy użytkownik już głosował...
-        const wtm = await WhatsTheMelody.findById(wtmId);
-        const votes: Types.ObjectId[] = wtm.votes.reduce((p: Types.ObjectId[], a: WTMVotes) => [...p, ...a.votes], []);
+        const wtm = await WhatsTheMelody.findById(wtmId) as WhatsTheMelodyAPI;
+        const votes = wtm.votes.reduce((p, a) => [...p, ...a.votes], [] as string[]);
         const index = votes.findIndex(v => v.toString() === userId);
         if (index === -1) {
             await WhatsTheMelody.findByIdAndUpdate(wtmId, { $push: { 'votes.$[element].votes': new Types.ObjectId(userId) } }, { arrayFilters: [{ 'element.title': vote }] });
+            wtm.correctAnswear === vote ? setWTMPoints(userId, 1) : setParzydlakAchievement(userId);
             return true;
         }
         return false;
-        // Punkcik jeśli poprawna odpowiedź
     };
 }

@@ -2,11 +2,13 @@ import { genSalt, hash as genHash } from "bcrypt";
 import { Types } from "mongoose";
 import { ValidationError } from "../middlewares/error";
 import { Anime } from "../models/anime";
+import { OnlineUser } from "../models/onlineUsers";
 import { User, UserModel } from "../models/users";
-import { AnimeAPI, FavoriteAnime, Introduction, Points, PrivacyAPI, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserInfoAPI, UserPopulateAPI } from "../types";
+import { AnimeAPI, FavoriteAnime, Introduction, OnlineUserAPI, OnlineUserCondensedAPI, Points, PrivacyAPI, ProfileAPI, RecommendedProfileAPI, UserAnimeData, UserAPI, UserDataAPI, UserInfoAPI, UserPopulateAPI } from "../types";
 import { PrivacyEditEntity, ProfileEditEntity } from "../types/formEntities";
 import { deleteFiles } from "../utils/deleteImages";
 import { getTimeSpentWithAnime } from "../utils/getTimeSpentWithAnime";
+import { setProfilesLikesPoints, setWatchedAnimePoints } from "../utils/pointsManager";
 import { privacyEditValidation } from "../validation/privacyEditValidation";
 import { profileEditValidation } from "../validation/profileEditValidation";
 import { registartionValidation, RegistrationFormEntity } from "../validation/registraction";
@@ -110,6 +112,16 @@ export class UserRecord implements UserAPI {
         }
         return sorted;
     }
+    static async getOnline(): Promise<OnlineUserCondensedAPI[]> {
+        const onlineUsers = await OnlineUser.find().select('username').select('avatar').select('link') as OnlineUserAPI[];
+        const userIds: string[] = [];
+        return onlineUsers.filter(u => {
+            if (!u.link) return true;
+            if (userIds.findIndex(id => id === u.link) !== -1) return false;
+            userIds.push(u.link);
+            return true;
+        });
+    }
 
     static async getAnimeData(userId: string): Promise<UserAnimeData | null> {
         const user = await User.findById(userId).select('userAnimeData');
@@ -177,7 +189,7 @@ export class UserRecord implements UserAPI {
             const userRate = rate.find(r => r.user.toString() === userId)?.rate;
             await User.findByIdAndUpdate(userId, { $push: { 'userAnimeData.watched': { anime: new Types.ObjectId(animeId), rate: userRate ? userRate : 0 } } });
         }
-        // setWatchedAnimePoints(userID);
+        setWatchedAnimePoints(userId);
     }
 
     static async handleStopped(userId: string, animeId: string): Promise<void> {
@@ -202,7 +214,7 @@ export class UserRecord implements UserAPI {
             }
             await User.findByIdAndUpdate(userId, { $push: { 'userAnimeData.stopped': new Types.ObjectId(animeId) } });
         }
-        // setWatchedAnimePoints(userID);
+        setWatchedAnimePoints(userId);
     }
 
     static async handleProcessOfWatching(userId: string, animeId: string): Promise<void> {
@@ -227,8 +239,9 @@ export class UserRecord implements UserAPI {
             }
             await User.findByIdAndUpdate(userId, { $push: { 'userAnimeData.processOfWatching': new Types.ObjectId(animeId) } });
         }
-        // setWatchedAnimePoints(userID);
+        setWatchedAnimePoints(userId);
     }
+
     static async handlePlanned(userId: string, animeId: string): Promise<void> {
         const user = await User.findById(userId).select('userAnimeData');
         const { userAnimeData } = user;
@@ -251,7 +264,7 @@ export class UserRecord implements UserAPI {
             }
             await User.findByIdAndUpdate(userId, { $push: { 'userAnimeData.planned': new Types.ObjectId(animeId) } });
         }
-        // setWatchedAnimePoints(userID);
+        setWatchedAnimePoints(userId);
     }
 
 
@@ -302,16 +315,17 @@ export class UserRecord implements UserAPI {
         };
     }
 
-    static async likeProfile(userId: string, like: string): Promise<boolean> {
+    static async likeProfile(userId: string, like: string): Promise<string> {
         const user = await User.findById(userId);
-        if (!user) return false;
+        if (!user) throw new ValidationError('Nie znaleziono użytkownika.');
         const isLike = user.likes.findIndex(l => l.toString() === like) !== -1;
         if (isLike) {
             await User.findByIdAndUpdate(userId, { $pull: { likes: new Types.ObjectId(like) } });
         } else {
             await User.findByIdAndUpdate(userId, { $push: { likes: new Types.ObjectId(like) } });
         }
-        return true;
+        setProfilesLikesPoints(userId);
+        return 'Dodano lub usunięto polubienie.';
     }
 
     static async getBackground(userId: string): Promise<string> {

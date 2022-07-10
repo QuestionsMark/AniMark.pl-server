@@ -2,6 +2,7 @@ import { AnimeOnTopAPI, AnimeOnTopPopulateAPI, AnimePopulateAPI, AOTVote } from 
 import { AnimeOnTop } from "../models/animeOnTop";
 import { Anime } from "../models/anime";
 import { Types } from "mongoose";
+import { setAOTPoints } from "../utils/pointsManager";
 
 export class AnimeOnTopRecord implements AnimeOnTopAPI {
     _id: string;
@@ -66,7 +67,8 @@ export class AnimeOnTopRecord implements AnimeOnTopAPI {
             const winners = newVotes.filter(v => v.votes.length === newVotes[0].votes.length);
             const winner = winners[Math.floor(Math.random() * winners.length)].title;
             const animeWinner = await Anime.findOne({ 'title': winner }).select('_id');
-            await AnimeOnTop.findByIdAndUpdate(aotId, { $set: { winner: animeWinner._id } })
+            await AnimeOnTop.findByIdAndUpdate(aotId, { $set: { winner: animeWinner._id } });
+            setAOTPoints(userId);
             return true;
         }
         return false;
