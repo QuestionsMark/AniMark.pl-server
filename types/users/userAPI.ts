@@ -178,3 +178,8 @@ export interface UserInfoAPI {
     username: string;
     avatar: string;
 }
+
+export interface UserAchievementsAPI {
+    _id: string;
+    achievements: AchievementAPI[];
+}
