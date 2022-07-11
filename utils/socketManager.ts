@@ -17,17 +17,6 @@ export const socketManager = async () => {
             io.emit('online-users__refresh');
         });
 
-        socket.on('online-users__get', () => {
-            // socket.emit('get-online-users', {
-            //     onlineUsers,
-            // });
-        });
-
-
-
-
-
-
         socket.on('new-comment', async ({ text, token, collection, collectionId }: NewComment) => {
             const userId = checkSocketAuthorization(token, { io, socket });
             if (!userId) return;
