@@ -340,14 +340,21 @@ dbRebuildRouter
     })
 
     .get('/test', async (req, res) => {
-        const json = await readFile('./public/copy/new-wtms.json', 'utf-8');
+        const json = await readFile('./public/copy/animes.json', 'utf-8');
         const data = JSON.parse(json);
 
-        const newData = data.map((a: any) => ({
-            ...a,
-            comments: a.comments.map((c: any) => ({ ...c, id: uuid() })),
-        }));
+        const newData = data.map((a: any) => {
+            return {
+                ...a,
+                images: {
+                    galeryImages: a.images.galeryImages,
+                    background: a.images.galeryImages[0],
+                    baner: a.images.galeryImages[1],
+                    mini: a.images.galeryImages[2],
+                }
+            }
+        });
 
-        await writeFile('./public/copy/new-wtms.json', JSON.stringify(newData));
+        await writeFile('./public/copy/new-animes.json', JSON.stringify(newData));
         res.end();
     })
