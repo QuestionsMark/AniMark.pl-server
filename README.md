@@ -144,4 +144,4 @@ Lista innych moich projektów ze stakiem technologicznym i krótkim opisem.
 [projects]: readme/projects.PNG
 [achievements]: readme/achievements.PNG
 [adding]: readme/adding.PNG
-[express]: https://user-images.githubusercontent.com/25181517/183859966-a3462d8d-1bc7-4880-b353-e2cbed900ed6.png
+[express]: https://img.shields.io/badge/Express.js-404D59?style=for-the-badge
