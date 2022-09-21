@@ -2,19 +2,15 @@ import { io } from '..';
 import { AnimeOnTopRecord, WhatsTheMelodyRecord } from '../records';
 import { setAccountTimePoints } from './pointsManager';
 
-export const dailyUpdate = () => {
-    setInterval(async () => {
-        const date = new Date();
-        if (date.getHours() === 0 && date.getMinutes() === 0) {
-            // reset "Jaka to Melodia"
-            await WhatsTheMelodyRecord.setNew();
-            io.emit('whats-the-melody__new');
+import { CronJob } from 'cron';
 
-            if (date.toDateString()[0].toLowerCase() === 's' && date.toDateString()[2].toLowerCase() === 'n') {
-                // reset "AOT"
-                await AnimeOnTopRecord.setNew();
-            }
-            setAccountTimePoints();
-        }
-    }, 60000);
+export const dailyUpdate = () => {
+    new CronJob('0 0 * * *', async () => {
+        await WhatsTheMelodyRecord.setNew();
+        io.emit('whats-the-melody__new');
+        setAccountTimePoints();
+    }, null, true);
+    new CronJob('0 0 * * 0', async () => {
+        await AnimeOnTopRecord.setNew();
+    })
 }
