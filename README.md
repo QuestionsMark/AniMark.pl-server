@@ -17,10 +17,11 @@
   </p>
 </div>
 
-[![Express][express]][express-url]
 [![Typescript][typescript]][typescript-url]
+[![Express][express]][express-url]
 [![MongoDB][mongodb]][mongodb-url]
 [![JsonWebToken][jsonwebtoken]][jsonwebtoken-url]
+[![Socket.io][socketio]][socketio-url]
 
 <details>
   <summary>Spis treści</summary>
@@ -80,3 +81,5 @@ RESTFul API dla platformy animark.pl oparte na expressJS i MongoDB. Aplikacja za
 [mongodb-url]: https://www.mongodb.com/
 [jsonwebtoken]: https://img.shields.io/badge/json%20web%20tokens-323330?style=for-the-badge&logo=json-web-tokens&logoColor=pink
 [jsonwebtoken-url]: https://www.npmjs.com/package/jsonwebtoken
+[socketio]: https://img.shields.io/badge/Socket.io-010101?&style=for-the-badge&logo=Socket.io&logoColor=white
+[socketio-url]: https://socket.io/
