@@ -1,4 +1,4 @@
-import { extname } from 'path';
+import { basename, extname } from 'path';
 import { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
 import { v4 as uuid } from 'uuid';
@@ -68,7 +68,7 @@ const checkFilesType = (file: Express.Multer.File, cb: multer.FileFilterCallback
 const storage = multer.diskStorage({
     destination: './public/media',
     filename: function (req, file, cb) {
-        cb(null, uuid());
+        cb(null, uuid() + extname(file.originalname));
     }
 });
 

@@ -1,6 +1,6 @@
 {
-  "name": "animark-server",
-  "version": "1.0.0",
+  "name": "animark.pl-server",
+  "version": "1.1.0",
   "description": "API for AniMark.pl",
   "main": "index.ts",
   "scripts": {

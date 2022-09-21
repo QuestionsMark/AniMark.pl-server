@@ -22,7 +22,7 @@ import { OnlineUserRecord } from "./records";
 // App Config
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 9000;
 
 // Socket.io Config
 
