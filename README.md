@@ -52,7 +52,7 @@ RESTFul API dla platformy animark.pl oparte na expressJS i MongoDB. Aplikacja za
    ```sh
    npm install
    ```
-4. Stworzyć plik konfiguracyjny `config/config.ts` na podstawie pliku `config/config.example.ts`
+4. Stwórz plik konfiguracyjny `config/config.ts` na podstawie pliku `config/config.example.ts`
 
    ```js
    export const DB_CONNECTION =
