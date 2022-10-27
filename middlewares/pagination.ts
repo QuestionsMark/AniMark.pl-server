@@ -40,7 +40,7 @@ export function pagination(collection: Collection) {
                         }
                         return [...p, { name: a.name, items: [a] }];
                     }, [] as AchievementsGroup[]);
-                    res.results = groups;
+                    res.results = groups.map(({ items, name }) => ({ items: items.sort((a, b) => a.level - b.level), name }));
                     res.amount = await Achievement.countDocuments().where({ "name": { $regex: searchPhrase } });
                     break;
                 }

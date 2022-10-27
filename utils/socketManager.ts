@@ -90,7 +90,7 @@ export const socketManager = async () => {
 
         socket.on('whats-the-melody__set-new', async ({ token }) => {
             const userId = checkSocketAuthorization(token, { io, socket }, [2]);
-            if (!userId) return;
+            if (!userId) return socketErrorHandler(new Error('Brak autoryzacji!'), { io, socket });
             try {
                 await WhatsTheMelodyRecord.setNew();
                 io.emit('whats-the-melody__new');
