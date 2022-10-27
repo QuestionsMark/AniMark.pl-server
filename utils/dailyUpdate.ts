@@ -12,5 +12,5 @@ export const dailyUpdate = () => {
     }, null, true);
     new CronJob('0 0 * * 0', async () => {
         await AnimeOnTopRecord.setNew();
-    })
+    }, null, true);
 }
