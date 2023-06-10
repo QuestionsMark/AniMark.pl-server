@@ -4,9 +4,10 @@ import express from "express";
 import cors from "cors";
 import { connect } from "mongoose";
 import { Server } from "socket.io";
+import { OpenAIApi, Configuration } from 'openai';
 import "express-async-errors";
 
-import { CORS_ORIGIN, DB_CONNECTION } from "./config/config";
+import { CORS_ORIGIN, DB_CONNECTION, OPEN_AI_API_KEY } from "./config/config";
 import { socketManager } from "./utils/socketManager";
 import { dailyUpdate } from "./utils/dailyUpdate";
 
@@ -62,6 +63,7 @@ app.use(errorRouter);
 // DB config
 
 connect(DB_CONNECTION, async () => {
+    console.log('connection');
     await OnlineUserRecord.deleteAll();
 });
 
@@ -76,3 +78,9 @@ server.listen(port, () => console.log(`Server is listening on http://localhost:$
 // Daily update
 
 dailyUpdate();
+
+// OpenAI setup
+
+export const openAI = new OpenAIApi(new Configuration({
+    apiKey: OPEN_AI_API_KEY,
+}))

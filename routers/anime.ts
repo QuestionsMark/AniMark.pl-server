@@ -91,6 +91,10 @@ animeRouter
         res.status(200).json(responseHelper(await AnimeRecord.edit(req.params.id, req.body)));
     })
 
+    .patch('/:id/description/:userId', async (req, res) => {
+        res.status(200).json(responseHelper(await AnimeRecord.editDescription(req.params.id, req.params.userId, req.body)));
+    })
+
 
     // Usuwanie komentarza anime
     .delete('/:id/comments/:commentId', async (req, res) => {

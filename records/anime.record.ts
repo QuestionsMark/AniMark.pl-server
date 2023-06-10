@@ -5,13 +5,14 @@ import { Anime } from "../models/anime";
 import { News } from "../models/news";
 import { User } from "../models/users";
 import { WhatsTheMelody } from "../models/whatsTheMelody";
-import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI, AnimeImage, galeryAPI, NewsAPI, WhatsTheMelodyAPI, AudioPreview } from "../types";
-import { AnimeCreateEntity, AnimeEditEntity } from "../types/formEntities";
+import { AnimeAPI, AnimeDescription, AnimeInfo, Comment, AnimeImagesObject, Rate, RecommendedAnimeAPI, Soundtrack, AnimePopulateAPI, AnimeForm, Kind, TypeAPI, AnimePageAPI, UserAPI, galeryAPI, NewsAPI, WhatsTheMelodyAPI, AudioPreview } from "../types";
+import { AnimeCreateEntity, AnimeEditDescriptionEntity, AnimeEditEntity } from "../types/formEntities";
 import { setHaterAchievement, setLoverAchievement } from "../utils/achievementsManager";
 import { deleteFiles } from "../utils/deleteImages";
 import { getDuration } from "../utils/getDuration";
 import { setCommentsPoints, setSoundtracksPoints } from "../utils/pointsManager";
 import { animeEditInformationsValidation } from "../validation/animeEditInformationsValidation";
+import { openAI } from "..";
 
 const changeFavoriteRate = async (animeId: string, userId: string, rate: number) => {
     await User.findByIdAndUpdate(userId, { 'favoriteAnime.$[anime].rate': rate }, { arrayFilters: [{ 'anime.anime': new Types.ObjectId(animeId) }] });
@@ -83,6 +84,14 @@ export class AnimeRecord implements AnimeAPI {
     static async create(data: AnimeCreateEntity, uploadedFiles: string[], next: NextFunction): Promise<string> {
         const { epizodeDuration, epizodesCount, hours, kind, minutes, productionYear, scenario, seasons, soundtracksPreview, title, watchLink, types } = data;
         try {
+            const getContent = (): string => {
+                return `Napisz recenzję do anime pod tytułem "${title}". Recenzja powinna zawierać od 3 do 5 akapitów.`;
+            };
+
+            const response = await openAI.createChatCompletion({
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'user', content: getContent() }],
+            });
             const newAnime = await Anime.create({
                 kind,
                 title: title.trim().charAt(0).toUpperCase() + title.trim().slice(1),
@@ -119,7 +128,7 @@ export class AnimeRecord implements AnimeAPI {
                 })),
                 description: {
                     author: '62ac254dcd191734242d3e5f',
-                    description: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum tenetur deserunt illum temporibus accusantium debitis perspiciatis suscipit ab nisi cupiditate nihil quibusdam non neque veniam, minus at ratione itaque maiores? Neque molestiae, laudantium cupiditate assumenda repellendus exercitationem odio, officia similique dolorem tenetur voluptas, omnis non. Aperiam, consequuntur. Dicta magni voluptate deleniti commodi corrupti modi exercitationem repellendus dolorum repellat est ducimus aspernatur ipsum sint quis praesentium obcaecati accusamus quisquam similique odit quam dolore corporis, sit sed provident.
+                    description: response.data.choices[0]?.message.content ? response.data.choices[0]?.message.content : `Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae harum tenetur deserunt illum temporibus accusantium debitis perspiciatis suscipit ab nisi cupiditate nihil quibusdam non neque veniam, minus at ratione itaque maiores? Neque molestiae, laudantium cupiditate assumenda repellendus exercitationem odio, officia similique dolorem tenetur voluptas, omnis non. Aperiam, consequuntur. Dicta magni voluptate deleniti commodi corrupti modi exercitationem repellendus dolorum repellat est ducimus aspernatur ipsum sint quis praesentium obcaecati accusamus quisquam similique odit quam dolore corporis, sit sed provident.
                     Id nostrum inventore mollitia quam quas qui at, aliquid quo esse labore ipsa maxime doloribus tempora aspernatur culpa officia ducimus ex facere, eveniet soluta. Officiis consequuntur tenetur ut dicta officia quas, necessitatibus, odio quis deleniti nemo. Eum, quia quaerat ducimus corrupti possimus deserunt exercitationem natus error, neque quibusdam dolor sit cum ipsa enim sapiente mollitia illo! Corrupti sunt facere facilis expedita voluptatibus obcaecati rem sit beatae maxime consequuntur nam deleniti perferendis sequi magni asperiores ipsam, dolorem delectus quam recusandae suscipit aliquam error? Consectetur est ullam tempore fugiat facilis rerum quia aliquam deserunt pariatur id harum inventore cupiditate ut delectus ipsa veniam reprehenderit sapiente, perferendis officia ducimus eos laboriosam voluptatem asperiores deleniti. Eveniet, quos consequatur. Id nostrum inventore mollitia quam quas qui at, aliquid quo esse labore ipsa maxime doloribus tempora aspernatur culpa officia ducimus ex facere, eveniet soluta. Officiis consequuntur tenetur ut dicta officia quas, necessitatibus, odio maxime aut hic ad adipisci architecto, quos possimus similique quis deleniti nemo. Maxime consequuntur nam deleniti perferendis sequi magni asperiores ipsam, dolorem delectus quam recusandae suscipit aliquam error? Consectetur est ullam tempore fugiat facilis rerum quia aliquam deserunt pariatur id harum inventore cupiditate ut delectus ipsa veniam reprehenderit sapiente, perferendis officia ducimus eos laboriosam voluptatem asperiores deleniti.
                     Eveniet, quos consequatur. Id nostrum inventore mollitia quam quas qui at, aliquid quo esse labore ipsa maxime doloribus tempora aspernatur culpa officia ducimus ex facere, eveniet soluta. Officiis consequuntur tenetur ut dicta officia quas, necessitatibus, odio maxime aut hic ad adipisci architecto, quos possimus similique quis deleniti nemo.`,
                     createdAt: Date.now(),
@@ -349,5 +358,10 @@ export class AnimeRecord implements AnimeAPI {
         const { epizodeDuration, epizodesCount, hours, kind, minutes, productionYear, scenario, seasons, title, types, watchLink } = data;
         await Anime.findByIdAndUpdate(id, { $set: { info: { scenario, productionYear, duration: getDuration(kind, hours, minutes, epizodeDuration, epizodesCount) }, watchLink, kind, types, seasons, title } });
         return 'Zaktualizowano informacje o anime.';
+    }
+
+    static async editDescription(id: string, userId: string, data: AnimeEditDescriptionEntity): Promise<string> {
+        await Anime.findByIdAndUpdate(id, { $set: { description: { author: new Types.ObjectId(userId), description: data.description, createdAt: new Date() } } });
+        return 'Zaktualizowano opis anime.';
     }
 }

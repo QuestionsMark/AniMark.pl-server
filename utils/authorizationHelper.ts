@@ -10,6 +10,7 @@ export const usersAuth = (parts: string[], method: string) => (
     parts[0] === 'anime' && parts[2] === 'rate' && !(parts[3]) && method === 'PUT' ||
     parts[0] === 'anime' && parts[2] === 'soundtracks' && parts[4] === 'like' && parts[5] && method === 'PUT' ||
     parts[0] === 'anime' && parts[2] === 'comments' && parts[4] === 'like' && parts[5] && method === 'PUT' ||
+    parts[0] === 'anime' && parts[1] && parts[2] === 'description' && method === 'PATCH' ||
     parts[0] === 'anime-on-top' && parts[1] === 'vote' && !(parts[2]) && method === 'POST' ||
     parts[0] === 'news' && parts[2] === 'comments' && !(parts[3]) && method === 'POST' ||
     parts[0] === 'news' && parts[2] === 'comments' && parts[4] === 'like' && parts[5] && method === 'PUT' ||

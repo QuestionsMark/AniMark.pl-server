@@ -96,6 +96,10 @@ export interface AnimeEditEntity {
     savedSoundtracks: Soundtrack[];
 }
 
+export interface AnimeEditDescriptionEntity {
+    description: string;
+}
+
 export interface ProjectCreateEntity {
     name: string;
     description: string;
