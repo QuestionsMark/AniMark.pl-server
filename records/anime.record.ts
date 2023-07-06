@@ -84,13 +84,12 @@ export class AnimeRecord implements AnimeAPI {
     static async create(data: AnimeCreateEntity, uploadedFiles: string[], next: NextFunction): Promise<string> {
         const { epizodeDuration, epizodesCount, hours, kind, minutes, productionYear, scenario, seasons, soundtracksPreview, title, watchLink, types } = data;
         try {
-            const getContent = (): string => {
-                return `Napisz recenzję do anime pod tytułem "${title}". Recenzja powinna zawierać od 3 do 5 akapitów.`;
-            };
-
             const response = await openAI.createChatCompletion({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: getContent() }],
+                model: 'gpt-3.5-turbo-16k-0613',
+                messages: [{
+                    role: 'user',
+                    content: `Napisz recenzję do anime pod tytułem "${title}". Recenzja powinna zawierać kilka akapitów, być spójną całością, bez zbędnego dzielenia na poszczególne akapity. Dobrze by było jakby w recenzji znajdowała się opiowa ocena takich elementów jak fabuła, muzyka, postacie i animacja. Całość recenzji powinna być zwieńczona krótkim podsumowaniem.`,
+                }],
             });
             const newAnime = await Anime.create({
                 kind,
